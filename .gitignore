@@ -1,0 +1,57 @@
+# Quasi sicuramente maggiorpate della roba non serve ma chissene frega 
+
+# ==========================
+# Node / React base
+# ==========================
+node_modules/          # dipendenze installate da npm/yarn/pnpm
+dist/                  # build di Vite (o CRA build output)
+build/                 # build di Create React App (se non usi Vite)
+.tmp/                  # cartelle temporanee
+
+# ==========================
+# TypeScript
+# ==========================
+*.tsbuildinfo          # file di cache generati dal compilatore TS
+
+# ==========================
+# Log files
+# ==========================
+npm-debug.log*         # log di errori npm
+yarn-debug.log*        # log di errori yarn
+yarn-error.log*        # log di errori yarn
+pnpm-debug.log*        # log di errori pnpm
+lerna-debug.log*       # log di errori Lerna
+
+# ==========================
+# Runtime files
+# ==========================
+*.cache                # cache varie
+.cache/                # cache tool (es. eslint, babel, vite)
+coverage/              # report test coverage (es. Jest)
+
+# ==========================
+# Editor & OS
+# ==========================
+.vscode/               # impostazioni locali di VS Code
+.idea/                 # impostazioni JetBrains (WebStorm, IntelliJ)
+*.suo                  # file di soluzioni Visual Studio (non VS Code)
+*.ntvs*                # Node Tools per Visual Studio
+*.njsproj              # progetti Node.js Visual Studio
+*.sln                  # solution file Visual Studio
+.DS_Store              # metadati macOS
+Thumbs.db              # metadati Windows
+
+# ==========================
+# Environment & secrets
+# ==========================
+.env                   # file con variabili ambiente (mai versionare)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ==========================
+# Test / strumenti
+# ==========================
+jest.config.js         # se personalizzi i test, ignora i config generati
+*.spec.tsx             # se vuoi escludere i test dal repo (opzionale)
