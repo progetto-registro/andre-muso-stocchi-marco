@@ -1,10 +1,12 @@
-# lupo-alberto
+# registro-proj
+
+**gruppo**: andrea stocchi muso marco
 
 Lavoro di gruppo ITS: web app con React
 
 **pagina pubblica con accedi o registrati**(scegli tra i due)
 
-- **accedi** => pag login (user pwd + button). Pagina che si interfaccia con un server e deve essere un po dinamica : se pwd o usernam errati non prosegui. persistenza garantita da express che comunica con db ( o file) per garantire persistenza). se sbagliati messaggi di errore al front
+- **accedi** => pag login (user pwd + button). Pagina che si interfaccia con un server e deve essere un po dinamica : se pwd o usernam errati non prosegui. persistenza garantita da express che comunica con db ( o file) per garantire persistenza. se sbagliati messaggi di errore al front
 
   se log in OK => HOME
 
@@ -24,6 +26,7 @@ Lavoro di gruppo ITS: web app con React
 Se io completo un appello, ossia aggiungo le ore di presenza di ogni studente per una nuova giornata e faccio salva, poi la magina è vuota. non posso piu cambiare idea da li : a quel punnto per modificare devi usare la pagina registro, doove appunto si vedono e si modificano gli appelli già esistenti.
 
 **API** da usare per parlare con backend (lo fa il prof):
+**back-end su porta 8080**
 
 - **post**
   /api/login
@@ -46,6 +49,4 @@ Se io completo un appello, ossia aggiungo le ore di presenza di ogni studente pe
 
 **PREREQUISITI**: tutto l applicativo va fatto con react, mui, ts, react-router, **feedback utenti**: (spinner caricamento, risposta ad azioni come _1_ error _2_ success)
 
-**back-end su porta 8080**
-
-**gruppo**: io stocchi muso marco
+**gruppo**: andrea stocchi muso marco

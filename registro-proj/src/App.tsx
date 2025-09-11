@@ -1,15 +1,61 @@
-import { useState } from 'react'
-import './App.css'
-import { Route, Routes } from 'react-router-dom'
+import { useState } from "react";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
-// ancora da fare
+// importa le tue pagine/comp
+import LandingPage from "./components/LandingPage/LandingPage";
+import LoginPage from "./components/LoginPage/LoginPage";
+import SignupPage from "./components/SignupPage/SignupPage";
+import HomePage from "./components/HomePage/HomePage";
+import Dashboard from "./components/Dashboard/Dashboard";
+import ClassRegister from "./components/ClassRegister/ClassRegister";
+import NewAttendance from "./components/NewAttendance/NewAttendance";
+import ProfilePage from "./components/ProfilePage/ProfilePage";
+import Navbar from "./components/Navbar/Navbar";
 
-export default function App(){
-cost  [isLogged, setIsLogged]=useState(false)
-return (
-<Routes>
-  <Route path="/" element= {</>}/>
-  <Route path = "/timers" element = {<Timers/>}/>
-</Routes>
- );
-} 
+export default function App() {
+  // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
+  const [isLogged, setIsLogged] = useState(false);
+
+  // LogCheck è un com a tutti gli effetti. Metterlo dentro ad App è comodo solo perchè lo usiamo solo in App e così evitiamo di passarli giù isLogged={isLogged} ma forse meglio spostarlo in sui file
+  //nei Routes LogCheck non avrà il path perchè la navigazione non " si ferma mai li", ci passa per andare altrove e subire controllo. Senza controllo si poteva non mettere e piazzarci la NavBar esterna. Oppure anche con controllo potevamo non usarlo e controllare ogni Route
+  function LogCheck() {
+    // i functional possono avere >1 return come normali funzioni (wow)
+    if (!isLogged) return <Navigate to="/login" replace />;
+    //<Outlet/> : quando url navigato combacia con un url di figlio del componente (LogCheck per noi), renderizza padre e al posto di <Outlet/> ci mette il figlio giusto corrisp all url. Puoi usarlo quando comp è un <Route../> che ha dentro altre <Route../>. Grazie a <Routes.. quando navighi verso un figlio react sa già dov'è e che deve passare dal padre (LogCheck) grazie alla gerarchia normale dei componenti
+    return (
+      <>
+        <Navbar />
+        <Outlet />
+      </>
+    );
+  }
+
+  return (
+    <Routes>
+      {/* PUBBLICHE */}
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/login"
+        element={<LoginPage onLogin={() => setIsLogged(true)} />}
+      />
+      <Route
+        path="/signup"
+        element={<SignupPage onSignup={() => setIsLogged(true)} />}
+      />
+      {/*LOGGATE*/}
+      {/*spiegazione LogCheck in suo .tsx se alla fine lo spostiamo*/}
+      <Route element={<LogCheck />}>
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/class-register" element={<ClassRegister />} />
+        <Route path="/new-attendance" element={<NewAttendance />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        {/* Navigate è un comp con usenavigate implementato comodo. scrivere replace invece è come passare props replace={true}, vale in generale proprio, e passandogli replace true il navigate elimina dalla history l url in cui sei andato per sbaglio così se fai indietro non ci rivai di nuovo ma vai dov eri prima " davvero "  */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Route>
+
+      {/* capire se vogliamo fare una pagina di NOT FOUND o mandiamo alla landing page */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
