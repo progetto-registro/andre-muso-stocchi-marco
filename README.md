@@ -16,7 +16,7 @@ Lavoro di gruppo ITS: web app con React
 
 **Pagina Profilo** Vedi tutte mie info di sign up e posso modificalre ( tranne CF che è PK). La pagina sarà identica a quella della registra
 
-**pagina aggiunta/rimozione/ vista elenco studenti** (utilizzabile per chiunque sia loggato ! no utenti std vs docenti. semplifichiamo) dove chi è loggato può aggiungere studenti alla lista di quelli esistenti ( con persistenza) inserendo nome cognome CF. si visualizza la lista degli studenti esistenti e accanto ad ognuno c'è bottone rimuovi
+**DASHBOARD: pagina aggiunta/rimozione/ vista elenco studenti** (utilizzabile per chiunque sia loggato ! no utenti std vs docenti. semplifichiamo) dove chi è loggato può aggiungere studenti alla lista di quelli esistenti ( con persistenza) inserendo nome cognome CF. si visualizza la lista degli studenti esistenti e accanto ad ognuno c'è bottone rimuovi
 
 **registro**: _(visualizza registro passato o vai su altra pagina con + per creare pagina di nuovo giorno ( fare appello) )_ vedo tutti studenti con ore che hanno fatto per ciascun giorno, dove ogni dato visualizzato è modificabile . puoi visualizzare ( e modificare) tutte presenze pregresse oppure cliccando sul + andare su pagina nuova presenza:
 
