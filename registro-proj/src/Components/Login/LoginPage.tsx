@@ -1,4 +1,4 @@
-import styles from './Autentication.module.css';
+import './LoginPage.css';
 
 function handleSubmit({}) {
   alert("Submit");
@@ -7,7 +7,7 @@ function handleSubmit({}) {
 function LoginPage() {
     return (
       <>
-        <div className={styles.square}>
+        <div className="square">
           <form onSubmit={handleSubmit}>
             <label>Username
               <input type="text" placeholder="Username" />
