@@ -48,4 +48,4 @@ Se io completo un appello, ossia aggiungo le ore di presenza di ogni studente pe
 
 **back-end su porta 8080**
 
-**mio gruppo**: io stocchi muso marco
+**gruppo**: io stocchi muso marco
