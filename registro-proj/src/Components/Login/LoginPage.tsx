@@ -4,7 +4,7 @@ function handleSubmit({}) {
   alert("Submit");
 }
 
-function Autentication() {
+function LoginPage() {
     return (
       <>
         <div className={styles.square}>
@@ -33,4 +33,4 @@ function Autentication() {
    */
 }
 
-export default Autentication;
+export default LoginPage;
