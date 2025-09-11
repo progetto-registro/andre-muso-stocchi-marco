@@ -1,21 +1,21 @@
 # ANDRE
 
-- [x]fare **routing** , tutti i comp principali (**pagine**) vuoti
-- [ ]fare **Home**
-- [x]settare **API**
+- [x] fare **routing** , tutti i comp principali (**pagine**) vuoti
+- [ ] fare **Home**
+- [x] settare **API**
 - [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi)
 
 # MARCO
 
-- [ ]fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
+- [ ] fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
 
 # MUSO
 
-- [ ]**landing page** ( accedi o registrati) ricorda di usare **mui** di google .
+- [ ] *landing page** ( accedi o registrati) ricorda di usare **mui** di google .
 
 # STOCCHI
 
-- [ ]**registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
+- [ ] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
 
 # PER TUTTI
 
