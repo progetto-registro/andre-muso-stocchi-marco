@@ -4,7 +4,7 @@ import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 // importa le tue pagine/comp
 import LandingPage from "./components/LandingPage/LandingPage";
 import LoginPage from "./components/LoginPage/LoginPage";
-import SignupPage from "./components/SignupPage/SignupPage";
+import SignupPage from "./Components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ClassRegister from "./components/ClassRegister/ClassRegister";
