@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
-// importa le tue pagine/comp
+import type { User } from "./models/User";
+
 import LandingPage from "./components/LandingPage/LandingPage";
 import LoginPage from "./components/LoginPage/LoginPage";
-import SignupPage from "./Components/SignupPage/SignupPage";
+import SignupPage2 from "./components/SignupPage/SignUpPage2";
+import SignupPage from "./components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ClassRegister from "./components/ClassRegister/ClassRegister";
@@ -14,7 +16,8 @@ import Navbar from "./components/Navbar/Navbar";
 
 export default function App() {
   // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLogged, setIsLogged] = useState<boolean>(false);
+  const [loggedUser, setLoggedUser] = useState<User | null>(null);
 
   // LogCheck è un com a tutti gli effetti. Metterlo dentro ad App è comodo solo perchè lo usiamo solo in App e così evitiamo di passarli giù isLogged={isLogged} ma forse meglio spostarlo in sui file
   //nei Routes LogCheck non avrà il path perchè la navigazione non " si ferma mai li", ci passa per andare altrove e subire controllo. Senza controllo si poteva non mettere e piazzarci la NavBar esterna. Oppure anche con controllo potevamo non usarlo e controllare ogni Route
@@ -36,11 +39,25 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route
         path="/login"
-        element={<LoginPage onLogin={() => setIsLogged(true)} />}
+        element={
+          <LoginPage
+            onLogin={(userIn: User) => {
+              setIsLogged(true);
+              setLoggedUser(userIn);
+            }}
+          />
+        }
       />
       <Route
         path="/signup"
-        element={<SignupPage onSignup={() => setIsLogged(true)} />}
+        element={
+          <SignupPage2
+            onSignup={(userIn: User) => {
+              setIsLogged(true);
+              setLoggedUser(userIn);
+            }}
+          />
+        }
       />
       {/*LOGGATE*/}
       {/*spiegazione LogCheck in suo .tsx se alla fine lo spostiamo*/}
