@@ -5,7 +5,6 @@ import type { User } from "./models/User";
 
 import LandingPage from "./components/LandingPage/LandingPage";
 import LoginPage from "./components/LoginPage/LoginPage";
-import SignupPage2 from "./components/SignupPage/SignUpPage2";
 import SignupPage from "./components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -51,7 +50,7 @@ export default function App() {
       <Route
         path="/signup"
         element={
-          <SignupPage2
+          <SignupPage
             onSignup={(userIn: User) => {
               setIsLogged(true);
               setLoggedUser(userIn);
