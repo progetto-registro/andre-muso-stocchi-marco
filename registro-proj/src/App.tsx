@@ -16,14 +16,14 @@ import { Toolbar } from "@mui/material";
 
 export default function App() {
   // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
-  const [isLogged, setIsLogged] = useState<boolean>(true);
+  const [isLogged, setIsLogged] = useState<boolean>(false);
   const [loggedUser, setLoggedUser] = useState<User | null>(null);
 
   // LogCheck è un com a tutti gli effetti. Metterlo dentro ad App è comodo solo perchè lo usiamo solo in App e così evitiamo di passarli giù isLogged={isLogged} ma forse meglio spostarlo in sui file
   //nei Routes LogCheck non avrà il path perchè la navigazione non " si ferma mai li", ci passa per andare altrove e subire controllo. Senza controllo si poteva non mettere e piazzarci la NavBar esterna. Oppure anche con controllo potevamo non usarlo e controllare ogni Route
   function LogCheck() {
     // i functional possono avere >1 return come normali funzioni (wow)
-    if (!isLogged) return <Navigate to="/login" replace />;
+    if (!isLogged) return <Navigate to="/" replace />;
     //<Outlet/> : quando url navigato combacia con un url di figlio del componente (LogCheck per noi), renderizza padre e al posto di <Outlet/> ci mette il figlio giusto corrisp all url. Puoi usarlo quando comp è un <Route../> che ha dentro altre <Route../>. Grazie a <Routes.. quando navighi verso un figlio react sa già dov'è e che deve passare dal padre (LogCheck) grazie alla gerarchia normale dei componenti
     return (
       <>

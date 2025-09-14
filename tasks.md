@@ -1,12 +1,8 @@
-# ANDRE
+## endpoint per modificare credenziali ?
 
-- [x] fare **routing** , tutti i comp principali (**pagine**) vuoti
-- [ ] fare **Home**
-- [ ] fare **NavBar**
-- [x] settare **API**
-- [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt
-- [ ] valutare l implementazione dei **temi mui**: anche effetti come over o focus su campi o bottoni
-- [ ] se l **api non torna User completo** quando fai signup, usare interface così hai sia type di signup che type di loggato
+## quando loggin res = User completo o niente e ti tieni solo quei dati li e quando fai modifica mandi uno nuovo con permanenti in comune e via ?
+
+## loggin = username + pwd ?
 
 # MARCO
 
@@ -14,11 +10,35 @@
 
 # MUSO
 
+- [ ] fare **Home** e comp card personalizzato da utilizzare nella home e magari altrove
 - [ ] **landing page** ( accedi o registrati) ricorda di usare **mui** di google .
 
 # STOCCHI
 
-- [ ] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
+- [x] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
+
+# ANDRE
+
+- [x] fare **routing** , tutti i comp principali (**pagine**) vuoti
+- [x] fare **NavBar**
+- [x] settare **API**
+- [ ] fare **modifica utente == profilo** riutilizzando SignupForm , leggi sotto
+- [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt
+- [ ] valutare l implementazione dei **temi mui**: anche effetti come over o focus su campi o bottoni
+- [ ] se l **api non torna User completo** quando fai signup, usare interface così hai sia type di signup che type di loggato o altro type
+- [ ] **TEMA??** togliere ripple da ovunque sicuramente e personalizzarlo carino. un po di zoom e ombreggiatura. non ovali colorati o grafiche indiane
+
+### SignupForm.tsx in pagina signup e profilo
+
+fare oggettone tornato da funzione in globalstaticdata che returna un **OGGETTO** con dentro array **hidden** per campi nascosti (vecchia passwrod) e dei **nomi delle etichette** (che cambiano tutti ) e dei **valori immutabili** ( cf) e aggiungere **LOGICA** come ad es **onChange** anche per **vecchiaPassword**, ma direi che c'è solo questo: anche vecchia password deve essere giusta.
+
+- magari passare prop noId per non mostrare il "Vecchia password" quando signup.. ma comunque rimane problema "**nuovo niomeCampo**" da mettere su ogni campo .. si fa facile semrpe con prop anzi si fa tutto con una prop sola boolean volendo ma mi sembra brutto (risolve anche quello qua sotto se non vogliamo usare i nomi degli input per bloccarli)
+- passargli un formdata in cui puoi modificare tutto tranne cf locckato che è pk oppure niente se per signup
+- deve andare giù fieldErrors prodotto dalla validate NO VALIDAZIONE GIU
+- typography di paper "Registrati" title
+- onsubmit devi dargliela giù e deve attivare handlesubmit. da sopra bisogna mandare giu formMessage
+- onchange ( deve mandare React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>) e il form deve anche prendere formData. fare anche onDateChange perchè l onChange non gestisce anche la data
+- spostare gli statiu legati a showpassword in formcomp
 
 # PER TUTTI
 

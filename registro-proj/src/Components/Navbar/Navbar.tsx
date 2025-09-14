@@ -15,12 +15,10 @@ import {
   Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import ClassIcon from "@mui/icons-material/Class";
-import AddTaskIcon from "@mui/icons-material/AddTask";
-import PersonIcon from "@mui/icons-material/Person";
+
 import LogoutIcon from "@mui/icons-material/Logout";
+
+import { navItems } from "../../shared/staticData";
 
 type NavbarProps = {
   onLogout: () => void; // mette a null loggeduser in app e mette a false islogged
@@ -53,13 +51,13 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
     navigate("/", { replace: true });
   };
 
-  const items = [
-    { text: "Home", icon: <HomeIcon />, to: "/home" },
-    { text: "Dashboard", icon: <DashboardIcon />, to: "/dashboard" },
-    { text: "Registro", icon: <ClassIcon />, to: "/class-register" },
-    { text: "Nuova lezione", icon: <AddTaskIcon />, to: "/new-attendance" },
-    { text: "Profilo", icon: <PersonIcon />, to: "/profile" },
-  ];
+  // const items = [
+  //   { text: "Home", icon: <HomeIcon />, to: "/home" },
+  //   { text: "Dashboard", icon: <DashboardIcon />, to: "/dashboard" },
+  //   { text: "Registro", icon: <ClassIcon />, to: "/class-register" },
+  //   { text: "Nuova lezione", icon: <AddTaskIcon />, to: "/new-attendance" },
+  //   { text: "Profilo", icon: <PersonIcon />, to: "/profile" },
+  // ];
 
   return (
     <>
@@ -70,29 +68,54 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
           backgroundColor: "rgba(25,118,210,0.85)",
         }}
       >
-        <Toolbar>
+        <Toolbar
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "auto 1fr auto",
+            alignItems: "center",
+          }}
+        >
           <IconButton
             edge="start" // o "end" props di IconButton per quando è dentro ad una Toolbar: fa magheggi con margin per allinearsi a sx / dx. usato per hamburger a sx o icone profilo o comp di altre cose a dx
             color="inherit" // eredita il colore dal primo genitore che ha un colore ( AppBar )
             aria-label="menu"
             onClick={toggle()}
+            disableRipple // niente onda
+            disableFocusRipple // niente onda sul focus
             sx={{
               //sx deriva da prima di mui da style expression o style extended. Dentro sx per chiavio non semplici come stati (es. over, focus, ..), classi applicate, discendenti, etc si usa & con ' .. ' dove & è l elem corrente (root) . es. '&:hover': .. o applicare classi  '&.Mui-disabled': { opacity: 0.5 } .. altro  come css tutto
               mr: 2,
+              ml: 0,
+              flex: "0 0 auto",
               "&:focus": { outline: "none" }, //focus si attiva sempre quando elemento ha il focus sia programmatico sia da tastiera sia da mouse
               "&:focus-visible": {
                 // si attiva solo quando ci arrivi da tastiera o in altri strani casi (comandi AT ??) volendo si può togliere bordo e usare altri effetti o classi base di mui come '&.Mui-focusVisible': { outline: '2px solid #fff' }
                 outline: "2px solid #fff",
                 outlineOffset: 2,
               },
+              transition: "transform 120ms ease", // quest ultimo pezzo di sx magari da togliere poi con tema
+              "&:hover": {
+                transform: "scale(1.12)",
+              },
+              "&:active": {
+                transform: "scale(0.98)",
+              },
             }}
           >
-            <MenuIcon />{" "}
+            <MenuIcon sx={{ fontSize: "2.2rem" }} />
             {/*menu icon solo svg dell icona praticamente.. puoi metterci sopra l onClick ma le aree di click sono non top e non ha altre cose comode(ruolo, focus, ripple, hover, area cliccabile ampia) . meglio wrappare icone base in IconButton se sono bottoni, e magari ci sono altri wrapper per altre cose non so*/}
           </IconButton>
 
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Registro – {username ?? "debug: utente. rimetti a false  in App"}
+          <Typography
+            variant="h6"
+            sx={{
+              left: 0,
+              right: 0,
+              textAlign: "center",
+              pointerEvents: "none",
+            }}
+          >
+            Registro – {username ?? "Sistemastato Inapp"}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -118,13 +141,12 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
           <List>
             {" "}
             {/*questi comp usati per liste navigabili, solitamente menu drawer. List contenitore html semantico (come <ul/> )+ gestisce padding, densità, divider . ListItem (semantic <li) ... generico più altri personalizzati per vari scopi */}
-            {items.map((it) => (
-              <ListItem key={it.text} disablePadding>
-                {" "}
+            {navItems.map((it) => (
+              <ListItem key={it.title} disablePadding>
                 {/*anche una key meno forte andava bene tanto non si ordinano, non si filtrano etc */}
                 <ListItemButton onClick={() => go(it.to)}>
                   <ListItemIcon>{it.icon}</ListItemIcon>
-                  <ListItemText primary={it.text} />
+                  <ListItemText primary={it.title} />
                 </ListItemButton>
               </ListItem>
             ))}
