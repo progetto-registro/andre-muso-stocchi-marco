@@ -1,8 +1,4 @@
-## endpoint per modificare credenziali ?
-
-## quando loggin res = User completo o niente e ti tieni solo quei dati li e quando fai modifica mandi uno nuovo con permanenti in comune e via ?
-
-## loggin = username + pwd ?
+## uscito BeExprress guardarsi swagger
 
 # MARCO
 
