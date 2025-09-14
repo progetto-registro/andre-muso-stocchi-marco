@@ -5,6 +5,7 @@ import type { User } from "./models/User";
 
 import LandingPage from "./components/LandingPage/LandingPage";
 import LoginPage from "./components/LoginPage/LoginPage";
+import SignUpPage2 from "./components/SignupPage/SignUpPage2";
 import SignupPage from "./components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -12,10 +13,11 @@ import ClassRegister from "./components/ClassRegister/ClassRegister";
 import NewAttendance from "./components/NewAttendance/NewAttendance";
 import ProfilePage from "./components/ProfilePage/ProfilePage";
 import Navbar from "./components/Navbar/Navbar";
+import { Toolbar } from "@mui/material";
 
 export default function App() {
   // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
-  const [isLogged, setIsLogged] = useState<boolean>(false);
+  const [isLogged, setIsLogged] = useState<boolean>(true);
   const [loggedUser, setLoggedUser] = useState<User | null>(null);
 
   // LogCheck è un com a tutti gli effetti. Metterlo dentro ad App è comodo solo perchè lo usiamo solo in App e così evitiamo di passarli giù isLogged={isLogged} ma forse meglio spostarlo in sui file
@@ -26,7 +28,15 @@ export default function App() {
     //<Outlet/> : quando url navigato combacia con un url di figlio del componente (LogCheck per noi), renderizza padre e al posto di <Outlet/> ci mette il figlio giusto corrisp all url. Puoi usarlo quando comp è un <Route../> che ha dentro altre <Route../>. Grazie a <Routes.. quando navighi verso un figlio react sa già dov'è e che deve passare dal padre (LogCheck) grazie alla gerarchia normale dei componenti
     return (
       <>
-        <Navbar />
+        <Navbar
+          username={loggedUser?.name ?? undefined}
+          onLogout={() => {
+            setIsLogged((prev) => !prev);
+            setLoggedUser(null);
+          }}
+        />
+        <Toolbar />
+        {/* Mettiamo un ToolBar vuoto per spostare l Outlet in basso di un TooLbar in modo che non ci vada sotto. Dentro Navbar ci sara mui comp AppBar che si occupa di posizione fixed (si sovrappone al contenuto), colore, etc. Non ha altezza propria, dipende da contenuto. Dentro ancora ci sarà ToolBar, il contenuto tipico di AppBar, che invece ha dimensioni responsive e altro per fare realmente da navbar*/}
         <Outlet />
       </>
     );
@@ -50,7 +60,7 @@ export default function App() {
       <Route
         path="/signup"
         element={
-          <SignupPage
+          <SignUpPage2
             onSignup={(userIn: User) => {
               setIsLogged(true);
               setLoggedUser(userIn);
