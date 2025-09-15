@@ -26,9 +26,11 @@ export default function LoginForm({
   const [formData, setFormData] = useState<Partial<LoginUser>>({});
   const [showPw, setShowPw] = useState(false);
 
+  //funzione che gestisce il submit
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const formValidated = validateAll(formData);
     e.preventDefault();
+    //controlla che tutti i campi siano inserti
     if (!formValidated.ok) {
       setFieldErrors(formValidated.errors);
       return;
@@ -38,19 +40,22 @@ export default function LoginForm({
     onSubmit(e, formData as LoginUser);
   }
 
+  //evento che gestisce i cambiamenti nel form
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string> //TextField di mui resituisce con  <HTMLInputElement> TextField normale, se ci metti prop multiline restituisce HTMLTextAreaElement e quindi se handler deve poterli accettare entrambi puoi mettere React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, ma a noi non serve (nessun multiline). se fosse l evento di una normale select sarebbe React.ChangeEvent<HTMLSelectElement>, ma la mui Select restituisce un personalizzato SelectChangeElement<T> che espone appunto {name?: string; value: unknown} dentro al suo campo .target   .. Si può importare ed usare al posto di React.ChangeEvent<{name?:string,value:string}> ed è meno sporco
+    //gli eventi si verificano quando qualcosa viene cambiato o dall'user o dal browser
+    event: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>
   ) => {
     const target = event.target as { name?: string; value: unknown }; // target può essere di due tipi, quindi typescript non sa se c'è .name o .value dentro e quando ne se hanno tipi uguali. con quell as gli stai dicendo che almeno quei due campi ci sono e di trattarli con quei tipi. name? perchè name in SelectChangeEvent è opzionale: puoi anche non passarlo alla mui Select
+    //controlla che negli input siano modificati i campi corretti. es: username e name possono causare problemi nel caso si provi a scambiare uno con l'altro
     if (!target.name) {
       alert("debug: c'è un problema nella select");
       return;
     }
-    const [name, value] = [target.name, target.value as string]; //value era ancora unknown ma per il cast con Number o il confronto con "" serve string
-
+    const [name, value] = [target.name, target.value as string];
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //funzione che controlla che gli input siano inseriti e non siano vuoti
   function validateAll(
       data: Partial<LoginUser>,
     ): { ok: true; user: LoginUser } | { ok: false; errors: FieldErrors } {
@@ -59,10 +64,10 @@ export default function LoginForm({
       if (!data.username?.trim()) e.name = "Il nome è obbligatorio";
       if (!data.password) e.password = "La password è obbligatoria";
       
-  
+      //Qua probabilmente dovrebbe dare in ritorno un User e non un LoginUser
       return Object.keys(e).length
         ? { ok: false, errors: e }
-        : { ok: true, user: data as LoginUser }; // se validato togliamo il Partial garantendo User alla submit axios post che infatti usa formValidated.user definito qua, che è di tipo User . top
+        : { ok: true, user: data as LoginUser };
     }
 
     return (
@@ -99,6 +104,7 @@ export default function LoginForm({
         >
           {formMessage && <Alert severity="error">{formMessage}</Alert>}
 
+          {/**USERNAME */}
           <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Username"
@@ -111,9 +117,6 @@ export default function LoginForm({
             helperText={fieldErrors.name ?? " "}
             fullWidth
           />
-
-          {/* onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{handleChange(e)}}  è necessario perchè il noistro handler prende due tipi di eventi e gli onChange lo vogliono specifico quindi mirroriamo così e via onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{handleChange(e)}}. FORSE IL TOP ERA FARE DUE HANDLER. si poteva anche semplicemente scrivere ovunque handleChange as any e a quel punto per il typescript la firma andava bene ma mi sa che non è top */}
-
 
           {/* PASSWORD */}
           <TextField
