@@ -4,6 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import LoginForm from "../../shared/LoginForm";
 import type { LoginUser } from "../../models/LoginUser";
+import SignupForm from "../../shared/SignupForm";
+import {
+  type FormSettings,
+  loginFormSettings,
+  signupFormSettings,
+} from "../../models/FormSettings";
 
 export default function LoginPage(props: any) {
   //serve per scrivere l'eventuale messaggio di errore direttamente nella pagina
@@ -14,16 +20,13 @@ export default function LoginPage(props: any) {
   //serve a gestire facilmente la navigazione tra le pagine
   const navigate = useNavigate();
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-    formData: LoginUser
-  ) => {
+  const handleSubmit = async (formData: LoginUser) => {
     setFormMessage("");
     axios
       .post("/api/auth/login", formData)
       .then(function response() {
         console.log(response);
-        props.onLogin(formData);
+        props.onLoggin(formData);
         setSubmitting(false);
         navigate("/home", { replace: true });
       })
@@ -31,9 +34,8 @@ export default function LoginPage(props: any) {
         console.error(error);
         if (error.response) {
           const errorStatus = error.response.status;
-          if (errorStatus === 400) setFormMessage("Dati non validi");
-          else if (errorStatus === 401) setFormMessage("Non autorizzato.");
-          else if (errorStatus === 404) setFormMessage("API non trovata.");
+          if (errorStatus === 400) setFormMessage("Dati mancanti");
+          else if (errorStatus === 404) setFormMessage("Dati errati");
           else setFormMessage("Errore del server. Riprova più tardi.");
         } else if (error.request) {
           setFormMessage(
@@ -64,11 +66,11 @@ export default function LoginPage(props: any) {
       >
         {/**Questa è la card, contiene i due input, username e password, e il bottone*/}
         <Container maxWidth="sm">
-          <LoginForm
-            formTitle="Login"
+          <SignupForm
+            formSettings={loginFormSettings}
             formMessage={formMessage}
             submitting={submitting}
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit as any}
             onSubmitting={() => setSubmitting(true)}
           />
         </Container>

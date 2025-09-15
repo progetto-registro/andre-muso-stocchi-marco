@@ -15,117 +15,168 @@ import {
   IconButton,
   FormHelperText,
 } from "@mui/material";
-import {type FormSettings} from '../models/FormSettings';
+import { type FormSettings, type Mode } from "../models/FormSettings";
 import type { User } from "../models/User";
-import type { FieldErrors } from "../models/FieldErrors";
+import type { FieldErrors, Ok, Err } from "../models/FieldErrors";
 import dayjs, { Dayjs } from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 import { isStrongPassword } from "validator";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-
-
+import {
+  formToLogginUser,
+  formToUser,
+  userToForm,
+  type FormAll,
+} from "../models/FormAll";
+import type { LoginUser } from "../models/LoginUser";
 
 type SignupFormProps = {
   //onSubmit: React.FormEventHandler<HTMLFormElement>; // anche questo indagare differenze  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
-  onSubmit: ((
-    e?: React.FormEvent<HTMLFormElement>,
-    data?: User
-  ) => void | Promise<void>);
+  onSubmit: (data: LoginUser | User) => void | Promise<void>;
   formSettings: FormSettings;
   formMessage: string;
   submitting: boolean;
   onSubmitting: () => void;
-  formTitle: string;
-  // fieldErrors: FieldErrors[]; no mettiamo uno stato qua;  niente su giu.  validazione in loco
+  incomingUser?: User;
+  onToggleModify?: () => void;
+  // fieldErrors: FieldErrors[]; niente props su e giu,  mettiamo uno stato qua;  validazione in loco
 };
 
-
 export default function SignupForm({
+  onToggleModify,
   onSubmit,
   formMessage,
   submitting,
-  formTitle,
   onSubmitting,
   formSettings,
+  incomingUser,
 }: SignupFormProps) {
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [formData, setFormData] = useState<Partial<User>>({});
-  const [showPw, setShowPw] = useState(false);
-  const [showPw2, setShowPw2] = useState(false);
-  const [showPw3, setShowPw3] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors<FormAll>>({});
+  const [formData, setFormData] = useState<Partial<FormAll>>({});
+  const [showPw, setShowPw] = useState<boolean>(false);
+  const [showPw2, setShowPw2] = useState<boolean>(false);
+  const [showOldPw, setShowOldPw] = useState<boolean>(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    
-    if(formSettings.textButton==="Modifica") {onSubmit(); return;}
-    const formValidated = validateAll(formData, confirmPassword);
-    e.preventDefault();
-    if (!formValidated.ok) {
-      setFieldErrors(formValidated.errors);
+  // inizializziamo formData con l incomingUser quando serve senno vuoto o come serve. serve anche per quando c'è cambiamento senza smontare visualizza<-> modifica in profilo
+  useEffect(() => {
+    if (!incomingUser) return; // in signup e login non c'è incoming e smette subito
+    if (formSettings.mode === "profilo-visualizza") {
+      setFormData(userToForm(incomingUser));
+    } else if (formSettings.mode === "profilo-modifica") {
+      setFormData(userToForm({ ...incomingUser, password: "" }));
+    } else if (formSettings.mode === "login") {
+      setFormData({ mail: "", password: "" });
+    } else if (formSettings.mode === "signup") {
+      setFormData({});
+    }
+  }, [formSettings, incomingUser]);
+
+  const handleSubmit = () => {
+    const validationRes = validateByMode(formSettings.mode, formData);
+    if (!validationRes.ok) {
+      //c'è modo piu furbo per escludere tipo ?
+      setFieldErrors(validationRes.errors!);
       return;
     }
-    onSubmitting();
-
-    onSubmit(e, formData as User);
-  }
-
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string> //TextField di mui resituisce con  <HTMLInputElement> TextField normale, se ci metti prop multiline restituisce HTMLTextAreaElement e quindi se handler deve poterli accettare entrambi puoi mettere React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, ma a noi non serve (nessun multiline). se fosse l evento di una normale select sarebbe React.ChangeEvent<HTMLSelectElement>, ma la mui Select restituisce un personalizzato SelectChangeElement<T> che espone appunto {name?: string; value: unknown} dentro al suo campo .target   .. Si può importare ed usare al posto di React.ChangeEvent<{name?:string,value:string}> ed è meno sporco
-  ) => {
-    const target = event.target as { name?: string; value: unknown }; // target può essere di due tipi, quindi typescript non sa se c'è .name o .value dentro e quando ne se hanno tipi uguali. con quell as gli stai dicendo che almeno quei due campi ci sono e di trattarli con quei tipi. name? perchè name in SelectChangeEvent è opzionale: puoi anche non passarlo alla mui Select
-    if (!target.name) {
-      alert("debug: c'è un problema nella select");
-      return;
+    if (validationRes.ok) {
+      onSubmitting();
+      onSubmit(validationRes.value);
     }
-    const [name, value] = [target.name, target.value as string]; //value era ancora unknown ma per il cast con Number o il confronto con "" serve string
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  function validateAll(
-    data: Partial<User>,
-    confirm: string
-  ): { ok: true; user: User } | { ok: false; errors: FieldErrors } {
-    const e: FieldErrors = {};
+  function validateByMode(
+    mode: Mode,
+    data: Partial<FormAll>
+  ): Ok<User | LoginUser> | Err<FieldErrors<FormAll>> {
+    const e: FieldErrors<FormAll> = {};
 
-    if (!data.name?.trim()) e.name = "Il nome è obbligatorio";
-    if (!data.surname?.trim()) e.surname = "Il cognome è obbligatorio";
-    if (!data.email?.trim()) e.email = "L’email è obbligatoria";
-    if (!data.gender?.trim()) e.gender = "Seleziona il genere";
-    if (!data.cf?.trim()) e.cf = "Il codice fiscale è obbligatorio";
+    // if(mode==="login") non c'è niente da fare fa tutto il backend
 
-    if (!data.birthDate) e.birthDate = "La data di nascita è obbligatoria";
-    else if (dayjs().diff(data.birthDate, "year") < 18)
-      e.birthDate = "Devi avere almeno 18 anni";
+    if (
+      mode === "profilo-modifica" ||
+      mode === "profilo-visualizza" ||
+      mode === "signup"
+    ) {
+      if (!data.nome?.trim()) e.nome = "Il nome è obbligatorio";
+      if (!data.cognome?.trim()) e.cognome = "Il cognome è obbligatorio";
+      if (!data.mail?.trim()) e.mail = "L'email è obbligatoria";
+      if (!data.sesso?.trim()) e.sesso = "Seleziona il genere";
+      if (!data.cf?.trim()) e.cf = "Il codice fiscale è obbligatorio";
 
-    if (!data.password) e.password = "La password è obbligatoria";
-    else if (
-      !isStrongPassword(data.password, {
-        minLength: 8,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1,
-      })
-    )
-      e.password = "Min. 8 car., 1 maiusc., 1 numero, 1 simbolo";
+      if (!data.dataNascita) {
+        e.dataNascita = "La data di nascita è obbligatoria";
+      } else if (dayjs().diff(data.dataNascita, "year") < 18) {
+        e.dataNascita = "Devi avere almeno 18 anni";
+      }
 
-    if ((data.password ?? "") !== confirm)
-      e.confirmPassword = "Le password non coincidono";
+      if (!data.password) e.password = "La password è obbligatoria";
+      else if (
+        !isStrongPassword(data.password, {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+          minSymbols: 1,
+        })
+      ) {
+        e.password = "Min. 8 car., 1 maiusc., 1 numero, 1 simbolo";
+      }
+    }
 
-    return Object.keys(e).length
-      ? { ok: false, errors: e }
-      : { ok: true, user: data as User }; // se validato togliamo il Partial garantendo User alla submit axios post che infatti usa formValidated.user definito qua, che è di tipo User . top
+    if (mode === "profilo-modifica" || mode === "signup") {
+      if ((data.password ?? "") !== data.confirmPassword)
+        e.confirmPassword = "Le password non coincidono";
+    }
+
+    if (mode === "profilo-modifica") {
+      if (!data.oldPassword) {
+        e.oldPassword = "Vecchia password obbligatoria";
+      }
+      if (data.oldPassword !== incomingUser?.password)
+        e.oldPassword = "Vecchia password errata";
+    }
+
+    switch (mode) {
+      case "signup": {
+        return Object.keys(e).length
+          ? { ok: false, errors: e }
+          : { ok: true, value: formToUser(data) };
+      }
+      case "login": {
+        return Object.keys(e).length
+          ? { ok: false, errors: e }
+          : { ok: true, value: formToLogginUser(data) };
+      }
+      case "profilo-modifica": {
+        return Object.keys(e).length
+          ? { ok: false, errors: e }
+          : { ok: true, value: formToUser(data) };
+      }
+      case "profilo-visualizza":
+        return { ok: true, value: {} as any };
+    }
   }
+
+  const onInput: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const { name, value } = e.target; //destrtrr, quelle prop ci sono in questo evento (in quasi tutti direi)
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const onSelect = (e: SelectChangeEvent<string>) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
   return (
     <Paper
       elevation={11}
       sx={{
         minWidth: "150px",
         width: "92%",
-        //maxWidth: 520, // ← ingrandisci la card qui (senza responsive, sennò qui non va bene)
-        p: { xs: 3, sm: 4 }, // padding interno
+        p: { xs: 3, sm: 4 }, // padding (interno)
         borderRadius: 3, // angoli morbidi
         backdropFilter: "blur(2px)",
         bgcolor: "#4788c0ff",
@@ -139,11 +190,23 @@ export default function SignupForm({
         variant="h5"
         sx={{ mb: { xs: 2, sm: 3 }, fontWeight: 600, textAlign: "center" }}
       >
-        {formTitle}
+        {formSettings.formTitle}
       </Typography>
 
       {/* FORM */}
-      <Box component="form" onSubmit={handleSubmit}>
+      <Box
+        component="form"
+        onSubmit={(e) => {
+          // appoggia mouse su e per vedere il tipo se volevi passarlo ti serviva in handleSubmit
+          e.preventDefault(); // evita il submit nativo sempre, o almeno nel ramo 'visualizza'
+          if (formSettings.mode === "profilo-visualizza") {
+            onToggleModify?.(); // per eseguirlòa solo se non è undefined (su profilo-visualizza non dovrebbe mai essere undefined)
+          } else {
+            handleSubmit();
+          }
+        }}
+      >
+        {/*forse per passaggio modifica<-> visualizza un onToggle apposta ci stava invece di usare handleSubmit=>onSubmit */}
         <Stack
           spacing={{ xs: 2, sm: 2.5 }}
           sx={{
@@ -152,208 +215,233 @@ export default function SignupForm({
         >
           {formMessage && <Alert severity="error">{formMessage}</Alert>}
 
-          {formSettings.visible.includes("name") && <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Nome"
-            name="name"
-            value={formData.name ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e);
-            }}
-            error={!!fieldErrors.name}
-            helperText={fieldErrors.name ?? " "}
-            fullWidth
-          />}
-          
+          {formSettings.visible.includes("username") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Username"
+              name="username"
+              disabled={formSettings.locked!.includes("username")}
+              value={formData.nome ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onInput(e);
+              }}
+              error={!!fieldErrors.username}
+              helperText={fieldErrors.username ?? " "}
+              fullWidth
+            />
+          )}
 
-          
+          {formSettings.visible.includes("nome") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Nome"
+              name="nome"
+              disabled={formSettings.locked!.includes("nome")}
+              value={formData.nome ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onInput(e);
+              }}
+              error={!!fieldErrors.nome}
+              helperText={fieldErrors.nome ?? " "}
+              fullWidth
+            />
+          )}
 
           {/* onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{handleChange(e)}}  è necessario perchè il noistro handler prende due tipi di eventi e gli onChange lo vogliono specifico quindi mirroriamo così e via onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{handleChange(e)}}. FORSE IL TOP ERA FARE DUE HANDLER. si poteva anche semplicemente scrivere ovunque handleChange as any e a quel punto per il typescript la firma andava bene ma mi sa che non è top */}
-            {formSettings.visible.includes("surname") &&
+          {formSettings.visible.includes("cognome") && (
             <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Cognome"
-            name="surname"
-            value={formData.surname ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e);
-            }}
-            error={!!fieldErrors.surname}
-            helperText={fieldErrors.surname ?? " "}
-            fullWidth
-          />
-          }
-          
-          {/*ALLA FINE MESSO DOVE VA MESSO, IN main.ts assieme ad altri provider: LocalizationProvider è un wrapper solo logico che attraverso l adapter fornito in questo caso da dayjs converte stirnghe in date di tipo Dayjs nel formato giusto a seconda della localizzazioone . ad esempio per questo l onChange del datapicker riesce a fornire un Dayjs */}
-          {formSettings.visible.includes("data") && 
-          <DatePicker // BISOGNA FORNIRGLI UN POSITION RELATIVE COSICCHè POSSA USARE POSITION ABSOLUTE BENE ("displayflex=>postionrelative=>e lui poi position absolute"). DataPicker dentro usa <Popper/> che ha position: absolute e z-index 1300. se un genitore ha overflow: hidden (come <Paper/> di default) o se metti anche solo un overflowX:hidden su una box esterna, non si sa più posizionare bene di default. magari va sotto il form
-            label="Data di nascita"
-            value={formData.birthDate ?? null}
-            //il set della data lo chiamiamo qua per comodità ma si può fare handler apposta
-            onChange={(newValue: Dayjs | null) => {
-              setFormData((prev) => ({
-                ...prev,
-                birthDate: newValue ?? undefined,
-              }));
-            }}
-            slotProps={{
-              textField: {
-                fullWidth: true,
-                sx: { bgcolor: "#c0dcf5ff", borderRadius: "6px" },
-                error: !!fieldErrors.birthDate,
-                helperText: fieldErrors.birthDate ?? " ",
-              },
-            }}
-          />}
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Cognome"
+              name="cognome"
+              disabled={formSettings.locked!.includes("cognome")}
+              value={formData.cognome ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onInput(e);
+              }}
+              error={!!fieldErrors.cognome}
+              helperText={fieldErrors.cognome ?? " "}
+              fullWidth
+            />
+          )}
 
-          
-          {formSettings.visible.includes("email") &&
-          <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e);
-            }}
-            error={!!fieldErrors.email}
-            helperText={fieldErrors.email ?? " "}
-            fullWidth
-          />
-          }
-          
-          {formSettings.visible.includes("cf") && 
-          <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Codice Fiscale"
-            name="cf"
-            inputProps={{ maxLength: 16 }}
-            value={formData.cf ?? ""}
-            error={!!fieldErrors.cf}
-            helperText={fieldErrors.cf ?? " "}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e);
-            }}
-            fullWidth
-          />
-          }
-          
-          {formSettings.visible.includes("gender") &&
-          <FormControl
-            fullWidth
-            error={!!fieldErrors.gender}
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-          >
-            <InputLabel id="gender-label">Genere</InputLabel>
-            <Select
-              labelId="gender-label"
-              label="Genere"
-              name="gender"
-              value={formData.gender ?? ""}
-              onChange={(e: SelectChangeEvent<string>) => handleChange(e)}
+          {/*ALLA FINE provider MESSO DOVE VA MESSO, IN main.ts assieme ad altri provider: LocalizationProvider è un wrapper solo logico che attraverso l adapter fornito in questo caso da dayjs converte stirnghe in date di tipo Dayjs nel formato giusto a seconda della localizzazioone . ad esempio per questo l onChange del datapicker riesce a fornire un Dayjs */}
+          {formSettings.visible.includes("dataNascita") && (
+            <DatePicker // BISOGNA FORNIRGLI UN POSITION RELATIVE COSICCHè POSSA USARE POSITION ABSOLUTE BENE ("displayflex=>postionrelative=>e lui poi position absolute"). DataPicker dentro usa <Popper/> che ha position: absolute e z-index 1300. se un genitore ha overflow: hidden (come <Paper/> di default) o se metti anche solo un overflowX:hidden su una box esterna, non si sa più posizionare bene di default. magari va sotto il form
+              label="Data di nascita"
+              name="dataNascita"
+              disabled={formSettings.locked!.includes("dataNascita")}
+              value={formData.dataNascita ?? null}
+              //il set della data lo chiamiamo qua per comodità ma si può fare handler apposta
+              onChange={(newValue: Dayjs | null) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  birthDate: newValue ?? undefined,
+                }));
+              }}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  sx: { bgcolor: "#c0dcf5ff", borderRadius: "6px" },
+                  error: !!fieldErrors.dataNascita,
+                  helperText: fieldErrors.dataNascita ?? " ",
+                },
+              }}
+            />
+          )}
+
+          {formSettings.visible.includes("mail") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Email"
+              name="mail"
+              disabled={formSettings.locked!.includes("mail")}
+              type="email"
+              value={formData.mail ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onInput(e);
+              }}
+              error={!!fieldErrors.mail}
+              helperText={fieldErrors.mail ?? " "}
+              fullWidth
+            />
+          )}
+
+          {formSettings.visible.includes("cf") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Codice Fiscale"
+              name="cf"
+              disabled={formSettings.locked!.includes("cf")}
+              inputProps={{ maxLength: 16 }}
+              value={formData.cf ?? ""}
+              error={!!fieldErrors.cf}
+              helperText={fieldErrors.cf ?? " "}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onInput(e);
+              }}
+              fullWidth
+            />
+          )}
+
+          {formSettings.visible.includes("sesso") && (
+            <FormControl
+              fullWidth
+              error={!!fieldErrors.sesso}
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             >
-              <MenuItem value="">
-                <em>Seleziona…</em>
-              </MenuItem>
-              <MenuItem value="male">Maschio</MenuItem>
-              <MenuItem value="female">Femmina</MenuItem>
-            </Select>
-            <FormHelperText>{fieldErrors.gender ?? " "}</FormHelperText>
-          </FormControl>
-          }
-          
+              <InputLabel id="gender-label">Genere</InputLabel>
+              <Select
+                labelId="gender-label"
+                label="Genere"
+                name="sesso"
+                disabled={formSettings.locked!.includes("sesso")}
+                value={formData.sesso ?? ""}
+                onChange={(e: SelectChangeEvent<string>) => onSelect(e)}
+              >
+                <MenuItem value="">
+                  <em>Seleziona…</em>
+                </MenuItem>
+                <MenuItem value="maschio">Maschio</MenuItem>
+                <MenuItem value="femmina">Femmina</MenuItem>
+              </Select>
+              <FormHelperText>{fieldErrors.sesso ?? " "}</FormHelperText>
+            </FormControl>
+          )}
+
           {/*OLD PASSWORD */}
 
-          <SignupForm settingsForm={check? settingModifica : settingVisualizza} />
-
-          {formSettings.visible.includes("oldPassword") &&
-           <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Password"
-            name="password"
-            type={showPw3 ? "text" : "password"}
-            value={formData.password ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleChange(e)
-            }
-            error={!!fieldErrors.oldPassword}
-            helperText={fieldErrors.oldPassword ?? " "}
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="Mostra/Nascondi password"
-                    onClick={() => setShowPw3((v) => !v)}
-                    edge="end"
-                  >
-                    {showPw3 ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          }
+          {formSettings.visible.includes("oldPassword") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Password"
+              name="oldPassword"
+              type={showOldPw ? "text" : "password"}
+              disabled={formSettings.locked!.includes("oldPassword")}
+              value={formData.oldPassword ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onInput(e);
+              }}
+              error={!!fieldErrors.oldPassword}
+              helperText={fieldErrors.oldPassword ?? " "}
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Mostra/Nascondi password"
+                      onClick={() => setShowOldPw((v) => !v)}
+                      edge="end"
+                    >
+                      {showOldPw ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
 
           {/* PASSWORD */}
-          {formSettings.visible.includes("password") &&
-           <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Password"
-            name="password"
-            type={showPw ? "text" : "password"}
-            value={formData.password ?? ""}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleChange(e)
-            }
-            error={!!fieldErrors.password}
-            helperText={fieldErrors.password ?? " "}
-            fullWidth
-            InputProps={!(formSettings.textButton==="Modifica")? {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="Mostra/Nascondi password"
-                    onClick={() => setShowPw((v) => !v)}
-                    edge="end"
-                  >
-                    {showPw ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            } : undefined}
-          />
-          }
-         
+          {formSettings.visible.includes("password") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Password"
+              name="password"
+              disabled={formSettings.locked!.includes("password")}
+              type={showPw ? "text" : "password"}
+              value={formData.password ?? ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInput(e)}
+              error={!!fieldErrors.password}
+              helperText={fieldErrors.password ?? " "}
+              fullWidth
+              InputProps={
+                !(formSettings.mode === "profilo-visualizza")
+                  ? {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            disabled={formSettings.locked!.includes("password")}
+                            aria-label="Mostra/Nascondi password"
+                            onClick={() => setShowPw((v) => !v)}
+                            edge="end"
+                          >
+                            {showPw ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                  : undefined
+              }
+            />
+          )}
 
           {/* RIPETI PASSWORD */}
-          {formSettings.visible.includes("confirmPassword") && 
-          <TextField
-            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
-            label="Ripeti password"
-            type={showPw2 ? "text" : "password"}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            error={!!fieldErrors.confirmPassword}
-            helperText={fieldErrors.confirmPassword ?? " "}
-            fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="Mostra/Nascondi password"
-                    onClick={() => setShowPw2((v) => !v)}
-                    edge="end"
-                  >
-                    {showPw2 ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          }
-          
+          {formSettings.visible.includes("confirmPassword") && (
+            <TextField
+              sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+              label="Ripeti password"
+              name="confirmPassword"
+              type={showPw2 ? "text" : "password"}
+              disabled={formSettings.locked!.includes("confirmPassword")}
+              value={formData.confirmPassword}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInput(e)}
+              error={!!fieldErrors.confirmPassword}
+              helperText={fieldErrors.confirmPassword ?? " "}
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="Mostra/Nascondi password"
+                      onClick={() => setShowPw2((v) => !v)}
+                      edge="end"
+                    >
+                      {showPw2 ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
 
           <Button
             type="submit"
@@ -371,7 +459,7 @@ export default function SignupForm({
             }}
             fullWidth
           >
-            {submitting ? "Caricamento" : formSettings.textButton}
+            {submitting ? "Caricamento" : formSettings.buttonText}
           </Button>
         </Stack>
       </Box>

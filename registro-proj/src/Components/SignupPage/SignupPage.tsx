@@ -4,7 +4,10 @@ import type { User } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import SignupForm from "../../shared/SignupForm";
-import type { FormSettings } from "../../models/FormSettings";
+import {
+  type FormSettings,
+  signupFormSettings,
+} from "../../models/FormSettings";
 
 export default function SignupPage(props: any) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
@@ -14,16 +17,14 @@ export default function SignupPage(props: any) {
 
   const navigate = useNavigate(); //dopo submit si va alla home
 
-  const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>, // forse visto che preventDefault lo possiamo fare di sotto si può togliere e anche semplifica props di callback typing etc
-    formData: User
-  ) => {
+  const handleSubmit = async (formData: User) => {
     setFormMessage("");
+
     axios
-      .post("/api/signup", formData)
+      .post("/api/auth/signup", formData)
       .then(function (response) {
         console.log(response);
-        props.onSignup(formData);
+        props.onLoggin(formData);
         setSubmitting(false);
         navigate("/home", { replace: true }); //così dopo che uno si registra se fa indietro torna a home e non a signup
       })
@@ -53,12 +54,6 @@ export default function SignupPage(props: any) {
       });
   };
 
-  const signupFormSetting: FormSettings={
-    visible: ["name", "surname", "cf", "email", "password", "confirmPassword","date"],
-    immutabile: ["cf"],
-    textButton="Registrati",
-  }
-
   // da cambiare molto quando guardiamo bene  questione degli stili temi etc con mui. per ora così che almeno c'è
   return (
     <Box
@@ -81,11 +76,10 @@ export default function SignupPage(props: any) {
         maxWidth="sm" /*Container: un comp comodo per gestire responsive dei suoi figli in una bottta sola */
       >
         <SignupForm
-          formSettings={signupFormSetting}
-          formTitle="Registrazione"
+          formSettings={signupFormSettings}
           formMessage={formMessage}
           submitting={submitting}
-          onSubmit={handleSubmitk}
+          onSubmit={handleSubmit as any} //bruttissimo , ma sennò dovevo farla generics, usarla a seconda del comp con T extends User o LoginUser e rivedere tutti i metodi nel form. magari poi ci studio meglio. Così poco sicuro. altra soluzione fare tante prop opzionali di submit con tante func handle submit diverse usate a seconda del padre
           onSubmitting={() => setSubmitting(true)} // potevamo farlo qua nel submit ee evitarci di mandare giù callback ma vabbe
         />
       </Container>
