@@ -15,6 +15,7 @@ import {
   IconButton,
   FormHelperText,
 } from "@mui/material";
+import {type FormSettings} from '../models/FormSettings';
 import type { User } from "../models/User";
 import type { FieldErrors } from "../models/FieldErrors";
 import dayjs, { Dayjs } from "dayjs";
@@ -23,12 +24,15 @@ import { useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
+
+
 type SignupFormProps = {
   //onSubmit: React.FormEventHandler<HTMLFormElement>; // anche questo indagare differenze  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
-  onSubmit: (
-    e: React.FormEvent<HTMLFormElement>,
-    data: User
-  ) => void | Promise<void>;
+  onSubmit: ((
+    e?: React.FormEvent<HTMLFormElement>,
+    data?: User
+  ) => void | Promise<void>);
+  formSettings: FormSettings;
   formMessage: string;
   submitting: boolean;
   onSubmitting: () => void;
@@ -36,20 +40,25 @@ type SignupFormProps = {
   // fieldErrors: FieldErrors[]; no mettiamo uno stato qua;  niente su giu.  validazione in loco
 };
 
+
 export default function SignupForm({
   onSubmit,
   formMessage,
   submitting,
   formTitle,
   onSubmitting,
+  formSettings,
 }: SignupFormProps) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [formData, setFormData] = useState<Partial<User>>({});
   const [showPw, setShowPw] = useState(false);
   const [showPw2, setShowPw2] = useState(false);
+  const [showPw3, setShowPw3] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    
+    if(formSettings.textButton==="Modifica") {onSubmit(); return;}
     const formValidated = validateAll(formData, confirmPassword);
     e.preventDefault();
     if (!formValidated.ok) {
@@ -143,7 +152,7 @@ export default function SignupForm({
         >
           {formMessage && <Alert severity="error">{formMessage}</Alert>}
 
-          <TextField
+          {formSettings.visible.includes("name") && <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Nome"
             name="name"
@@ -154,11 +163,14 @@ export default function SignupForm({
             error={!!fieldErrors.name}
             helperText={fieldErrors.name ?? " "}
             fullWidth
-          />
+          />}
+          
+
+          
 
           {/* onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{handleChange(e)}}  è necessario perchè il noistro handler prende due tipi di eventi e gli onChange lo vogliono specifico quindi mirroriamo così e via onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{handleChange(e)}}. FORSE IL TOP ERA FARE DUE HANDLER. si poteva anche semplicemente scrivere ovunque handleChange as any e a quel punto per il typescript la firma andava bene ma mi sa che non è top */}
-
-          <TextField
+            {formSettings.visible.includes("surname") &&
+            <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Cognome"
             name="surname"
@@ -170,8 +182,10 @@ export default function SignupForm({
             helperText={fieldErrors.surname ?? " "}
             fullWidth
           />
-
+          }
+          
           {/*ALLA FINE MESSO DOVE VA MESSO, IN main.ts assieme ad altri provider: LocalizationProvider è un wrapper solo logico che attraverso l adapter fornito in questo caso da dayjs converte stirnghe in date di tipo Dayjs nel formato giusto a seconda della localizzazioone . ad esempio per questo l onChange del datapicker riesce a fornire un Dayjs */}
+          {formSettings.visible.includes("data") && 
           <DatePicker // BISOGNA FORNIRGLI UN POSITION RELATIVE COSICCHè POSSA USARE POSITION ABSOLUTE BENE ("displayflex=>postionrelative=>e lui poi position absolute"). DataPicker dentro usa <Popper/> che ha position: absolute e z-index 1300. se un genitore ha overflow: hidden (come <Paper/> di default) o se metti anche solo un overflowX:hidden su una box esterna, non si sa più posizionare bene di default. magari va sotto il form
             label="Data di nascita"
             value={formData.birthDate ?? null}
@@ -190,8 +204,10 @@ export default function SignupForm({
                 helperText: fieldErrors.birthDate ?? " ",
               },
             }}
-          />
+          />}
 
+          
+          {formSettings.visible.includes("email") &&
           <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Email"
@@ -205,7 +221,9 @@ export default function SignupForm({
             helperText={fieldErrors.email ?? " "}
             fullWidth
           />
-
+          }
+          
+          {formSettings.visible.includes("cf") && 
           <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Codice Fiscale"
@@ -219,7 +237,9 @@ export default function SignupForm({
             }}
             fullWidth
           />
-
+          }
+          
+          {formSettings.visible.includes("gender") &&
           <FormControl
             fullWidth
             error={!!fieldErrors.gender}
@@ -241,9 +261,44 @@ export default function SignupForm({
             </Select>
             <FormHelperText>{fieldErrors.gender ?? " "}</FormHelperText>
           </FormControl>
+          }
+          
+          {/*OLD PASSWORD */}
+
+          <SignupForm settingsForm={check? settingModifica : settingVisualizza} />
+
+          {formSettings.visible.includes("oldPassword") &&
+           <TextField
+            sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
+            label="Password"
+            name="password"
+            type={showPw3 ? "text" : "password"}
+            value={formData.password ?? ""}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChange(e)
+            }
+            error={!!fieldErrors.oldPassword}
+            helperText={fieldErrors.oldPassword ?? " "}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="Mostra/Nascondi password"
+                    onClick={() => setShowPw3((v) => !v)}
+                    edge="end"
+                  >
+                    {showPw3 ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          }
 
           {/* PASSWORD */}
-          <TextField
+          {formSettings.visible.includes("password") &&
+           <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Password"
             name="password"
@@ -255,7 +310,7 @@ export default function SignupForm({
             error={!!fieldErrors.password}
             helperText={fieldErrors.password ?? " "}
             fullWidth
-            InputProps={{
+            InputProps={!(formSettings.textButton==="Modifica")? {
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
@@ -267,10 +322,13 @@ export default function SignupForm({
                   </IconButton>
                 </InputAdornment>
               ),
-            }}
+            } : undefined}
           />
+          }
+         
 
           {/* RIPETI PASSWORD */}
+          {formSettings.visible.includes("confirmPassword") && 
           <TextField
             sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
             label="Ripeti password"
@@ -294,6 +352,8 @@ export default function SignupForm({
               ),
             }}
           />
+          }
+          
 
           <Button
             type="submit"
@@ -311,7 +371,7 @@ export default function SignupForm({
             }}
             fullWidth
           >
-            {submitting ? "Invio..." : "Registrati"}
+            {submitting ? "Caricamento" : formSettings.textButton}
           </Button>
         </Stack>
       </Box>

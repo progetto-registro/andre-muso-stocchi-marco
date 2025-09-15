@@ -4,6 +4,7 @@ import type { User } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import SignupForm from "../../shared/SignupForm";
+import type { FormSettings } from "../../models/FormSettings";
 
 export default function SignupPage(props: any) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
@@ -52,6 +53,12 @@ export default function SignupPage(props: any) {
       });
   };
 
+  const signupFormSetting: FormSettings={
+    visible: ["name", "surname", "cf", "email", "password", "confirmPassword","date"],
+    immutabile: ["cf"],
+    textButton="Registrati",
+  }
+
   // da cambiare molto quando guardiamo bene  questione degli stili temi etc con mui. per ora così che almeno c'è
   return (
     <Box
@@ -74,10 +81,11 @@ export default function SignupPage(props: any) {
         maxWidth="sm" /*Container: un comp comodo per gestire responsive dei suoi figli in una bottta sola */
       >
         <SignupForm
+          formSettings={signupFormSetting}
           formTitle="Registrazione"
           formMessage={formMessage}
           submitting={submitting}
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmitk}
           onSubmitting={() => setSubmitting(true)} // potevamo farlo qua nel submit ee evitarci di mandare giù callback ma vabbe
         />
       </Container>
