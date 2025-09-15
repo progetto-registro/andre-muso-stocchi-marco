@@ -1,44 +1,30 @@
-import { useState } from "react";
-import "./LoginPage.css";
+import React, { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
+import { Box, Container } from "@mui/material";
+import LoginForm from "../../shared/LoginForm";
+import type { LoginUser } from "../../models/LoginUser";
 
 export default function LoginPage(props: any) {
-  type LoginUser = {
-    name: string;
-    password: string;
-  };
-
-  const [formData, setFormData] = useState<Partial<LoginUser>>({});
+  //const [formData, setFormData] = useState<Partial<LoginUser>>({});
   const [formMessage, setFormMessage] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
-  const handleChange = (event: any) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
-  };
-
   //penso sia meno sbatta metterla dentro al comp, così hai accesso diretto alle props che ti passo da App ad esempio, ma anche al navigate = usenavigate che ti farai
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+    formData: LoginUser
+  ) => {
     setFormMessage("");
-
-    if (!isFormComplete(formData)) {
-      setFormMessage("Almeno un campo è imcompleto (personalizzare campo)");
-      return;
-    }
-
-    setSubmitting(true);
-
     axios
       .post("/api/login", formData)
-      .then(function (response) {
-        console.log(response.data);
-        //quando la imlpementi davvero , dopo aver verificato con l API che il login sia davvero ok, prima di navigare verso home chiama props.onLogin(); . E' una callback che in App.tsx setta lo stato globale a loggato e fa funzionare rounting
+      .then(function response() {
+        console.log(response);
         props.onLogin(formData);
-
+        setSubmitting(false);
         navigate("/home", { replace: true });
       })
       .catch((error: AxiosError<any>) => {
@@ -50,9 +36,7 @@ export default function LoginPage(props: any) {
           else if (errorStatus === 404) setFormMessage("API non trovata.");
           else setFormMessage("Errore del server. Riprova più tardi.");
         } else if (error.request) {
-          setFormMessage(
-            "Nessuna risposta dal server. Controlla la connessione."
-          );
+          setFormMessage("Nessuna risposta dal server. Controlla la connessione.");
         } else {
           setFormMessage("Errore applicativo imprevisto.");
         }
@@ -62,42 +46,35 @@ export default function LoginPage(props: any) {
       });
   };
 
-  function isFormComplete(data: Partial<LoginUser>): data is LoginUser {
-    return (
-      !!data.name &&
-      !!data.password
-    );
-  }
-
   // ah mettici anche un campo che mostra credenziali errate se ricevi un ?? 440?? penso sia quello che il prof vuole usare se l utente che vuole loggarsi non esiste. penso che per avere la res di una post e quindi avere il cod errore si faccia come con le get
   return (
-    <>
-      {formMessage && (
-        <div className="square">
-          <label>{formMessage}</label>
-        </div>
-      )}
-      <div className="square">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            placeholder="Username"
-            name="username"
-            value={formData.name}
-            onChange={handleChange}
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <button type="submit">Accedi</button>
-        </form>
-      </div>
-    </>
+    <Box
+      sx={{
+        position: "fixed", // provandoi a togliere le scrollbar
+        top: 0,
+        left: 0,
+        height: "100vh",
+        width: "100vw", // minWidth non usarli, potrebbero attivare e usare anche un po di scrollbar su schermi piccoli, usa width: 100% , o niente, perchè è il default.
+        // padding tolti perchè magari uscivano dai 100vw e 100vh e facevano comparire le scrollbar
+        display: "flex",
+        placeItems: "center",
+        bgcolor: "#6a7780ff",
+        overflow: "hidden",
+        overflowY: "hidden",
+      }}
+    >
+      {/* CARD */}
+      <Container
+        maxWidth="sm" /*Container: un comp comodo per gestire responsive dei suoi figli in una bottta sola */
+      >
+        <LoginForm
+          formTitle="Login"
+          formMessage={formMessage}
+          submitting={submitting}
+          onSubmit={handleSubmit}
+          onSubmitting={() => setSubmitting(true)} // potevamo farlo qua nel submit ee evitarci di mandare giù callback ma vabbe
+        />
+      </Container>
+    </Box>
   );
 }
