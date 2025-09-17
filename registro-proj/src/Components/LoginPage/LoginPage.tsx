@@ -1,15 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
-
 import type { LoginUser } from "../../models/LoginUser";
 import SignupForm from "../../shared/SignupForm";
-import {
-  type FormSettings,
-  loginFormSettings,
-  signupFormSettings,
-} from "../../models/FormSettings";
+import { loginFormSettings } from "../../models/FormSettings";
 
 export default function LoginPage(props: any) {
   //serve per scrivere l'eventuale messaggio di errore direttamente nella pagina
@@ -26,7 +21,7 @@ export default function LoginPage(props: any) {
       .post("/api/auth/login", formData)
       .then(function response() {
         console.log(response);
-        props.onLoggin(formData);
+        props.onLogin(formData);
         setSubmitting(false);
         navigate("/home", { replace: true });
       })

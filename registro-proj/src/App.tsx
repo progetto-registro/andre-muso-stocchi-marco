@@ -3,17 +3,17 @@ import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 import type { User } from "./models/User";
 
-import LandingPage from "./Components/LandingPage/LandingPage";
-import LoginPage from "./Components/LoginPage/LoginPage";
-import SignupPage from "./Components/SignupPage/SignupPage";
-import HomePage from "./Components/HomePage/HomePage";
-import Dashboard from "./Components/Dashboard/Dashboard";
-import ClassRegister from "./Components/ClassRegister/ClassRegister";
-import NewAttendance from "./Components/NewAttendance/NewAttendance";
-import ProfilePage from "./Components/ProfilePage/ProfilePage";
-import Navbar from "./Components/Navbar/Navbar";
+import LandingPage from "./components/LandingPage/LandingPage";
+import LoginPage from "./components/LoginPage/LoginPage";
+import SignupPage from "./components/SignupPage/SignupPage";
+import HomePage from "./components/HomePage/HomePage";
+import Dashboard from "./components/Dashboard/Dashboard";
+import ClassRegister from "./components/ClassRegister/ClassRegister";
+import NewAttendance from "./components/NewAttendance/NewAttendance";
+import ProfilePage from "./components/ProfilePage/ProfilePage";
+import Navbar from "./components/Navbar/Navbar";
 import { Toolbar } from "@mui/material";
- 
+
 export default function App() {
   // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
   const [isLogged, setIsLogged] = useState<boolean>(false);

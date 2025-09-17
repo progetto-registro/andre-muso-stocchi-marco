@@ -1,10 +1,12 @@
 import { Card, CardContent, Typography, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
 
-
 export default function AuthCard() {
   return (
-    <Card sx={{ width: { xs: "95%", sm: 400 },
+    <Card
+      sx={{
+        width: { xs: "95%", sm: 400 },
+        maxWidth: "95%",
         p: 3,
         borderRadius: 3,
         boxShadow: 6,
@@ -38,7 +40,7 @@ export default function AuthCard() {
             size="large"
             fullWidth
           >
-            Registrati
+            Sign Up
           </Button>
         </Stack>
       </CardContent>

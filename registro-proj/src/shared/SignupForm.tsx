@@ -218,7 +218,7 @@ export default function SignupForm({
               label="Username"
               name="username"
               disabled={formSettings.locked?.includes("username")}
-              value={formData.nome ?? ""}
+              value={formData.username ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 onInput(e);
               }}
