@@ -1,9 +1,13 @@
-.landing-container {
+/* 
+  .landing-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;           
+  width: 100vw;
   min-height: 100vh;
   background: linear-gradient(to right, #4facfe, #00f2fe);
-  position: relative;     
-}
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  } 
+*/
