@@ -41,12 +41,10 @@ type SignupFormProps = {
   submitting: boolean;
   onSubmitting: () => void;
   incomingUser?: User;
-  onToggleModify?: () => void;
   // fieldErrors: FieldErrors[]; niente props su e giu,  mettiamo uno stato qua;  validazione in loco
 };
 
 export default function SignupForm({
-  onToggleModify,
   onSubmit,
   formMessage,
   submitting,
@@ -75,6 +73,7 @@ export default function SignupForm({
   }, [formSettings, incomingUser]);
 
   const handleSubmit = () => {
+
     const validationRes = validateByMode(formSettings.mode, formData);
     if (!validationRes.ok) {
       //c'è modo piu furbo per escludere tipo ?
@@ -199,11 +198,9 @@ export default function SignupForm({
         onSubmit={(e) => {
           // appoggia mouse su e per vedere il tipo se volevi passarlo ti serviva in handleSubmit
           e.preventDefault(); // evita il submit nativo sempre, o almeno nel ramo 'visualizza'
-          if (formSettings.mode === "profilo-visualizza") {
-            onToggleModify?.(); // per eseguirlòa solo se non è undefined (su profilo-visualizza non dovrebbe mai essere undefined)
-          } else {
+          
             handleSubmit();
-          }
+      
         }}
       >
         {/*forse per passaggio modifica<-> visualizza un onToggle apposta ci stava invece di usare handleSubmit=>onSubmit */}
