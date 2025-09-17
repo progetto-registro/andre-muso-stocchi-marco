@@ -24,7 +24,7 @@ export default function SignupPage(props: any) {
       .post("/api/auth/signup", formData)
       .then(function (response) {
         console.log(response);
-        props.onLoggin(formData);
+        props.onLogin(formData);
         setSubmitting(false);
         navigate("/home", { replace: true }); //così dopo che uno si registra se fa indietro torna a home e non a signup
       })
@@ -68,12 +68,17 @@ export default function SignupPage(props: any) {
         placeItems: "center",
         bgcolor: "#6a7780ff",
         overflow: "hidden",
-        overflowY: "hidden",
+        overflowY: "hidden"
       }}
     >
       {/* CARD */}
       <Container
         maxWidth="sm" /*Container: un comp comodo per gestire responsive dei suoi figli in una bottta sola */
+        
+        sx={{
+          transform: "scale(0.67)",
+          transformOrigin: "center center"
+        }}
       >
         <SignupForm
           formSettings={signupFormSettings}
