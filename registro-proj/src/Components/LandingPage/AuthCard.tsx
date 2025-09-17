@@ -38,7 +38,7 @@ export default function AuthCard() {
             size="large"
             fullWidth
           >
-            Registrati
+            Sign Up
           </Button>
         </Stack>
       </CardContent>
