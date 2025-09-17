@@ -31,6 +31,7 @@ export default function LoginPage(props: any) {
         navigate("/home", { replace: true });
       })
       .catch((error: AxiosError<any>) => {
+        setSubmitting(false);
         console.error(error);
         if (error.response) {
           const errorStatus = error.response.status;

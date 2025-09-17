@@ -21,9 +21,11 @@
 - [x] fare **NavBar**
 - [x] settare **API**
 - [x] fare **modifica utente == profilo** riutilizzando SignupForm , leggi sotto
-- [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt. **User loggato** da fare alla peggio con props App=> loggedComp e **callback** su signup e login
+- [ ] **!!!!!!!!!!!!!!!!!!!!!!!!!** valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt. **User loggato** da fare alla peggio con props App=> loggedComp e **callback** su signup e login
 - [ ] approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
 - [ ] ora che c'è **BEExpress** provare endpoint ( alcuni non vanno) e dirlo prof, sistemare **ERROR_CODE** e **tipi**
+- [ ] nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
+- [ ] La data non fuzniona, fare context (User, isLogged, etc)
 
 # PER TUTTI
 
