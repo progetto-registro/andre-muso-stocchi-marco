@@ -220,7 +220,7 @@ export default function SignupForm({
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
               label="Username"
               name="username"
-              disabled={formSettings.locked!.includes("username")}
+              disabled={formSettings.locked?.includes("username")}
               value={formData.nome ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 onInput(e);
@@ -236,7 +236,7 @@ export default function SignupForm({
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
               label="Nome"
               name="nome"
-              disabled={formSettings.locked!.includes("nome")}
+              disabled={formSettings.locked?.includes("nome")}
               value={formData.nome ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 onInput(e);
@@ -253,7 +253,7 @@ export default function SignupForm({
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
               label="Cognome"
               name="cognome"
-              disabled={formSettings.locked!.includes("cognome")}
+              disabled={formSettings.locked?.includes("cognome")}
               value={formData.cognome ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 onInput(e);
@@ -269,7 +269,7 @@ export default function SignupForm({
             <DatePicker // BISOGNA FORNIRGLI UN POSITION RELATIVE COSICCHè POSSA USARE POSITION ABSOLUTE BENE ("displayflex=>postionrelative=>e lui poi position absolute"). DataPicker dentro usa <Popper/> che ha position: absolute e z-index 1300. se un genitore ha overflow: hidden (come <Paper/> di default) o se metti anche solo un overflowX:hidden su una box esterna, non si sa più posizionare bene di default. magari va sotto il form
               label="Data di nascita"
               name="dataNascita"
-              disabled={formSettings.locked!.includes("dataNascita")}
+              disabled={formSettings.locked?.includes("dataNascita")}
               value={formData.dataNascita ?? null}
               //il set della data lo chiamiamo qua per comodità ma si può fare handler apposta
               onChange={(newValue: Dayjs | null) => {
@@ -294,7 +294,7 @@ export default function SignupForm({
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
               label="Email"
               name="mail"
-              disabled={formSettings.locked!.includes("mail")}
+              disabled={formSettings.locked?.includes("mail")}
               type="email"
               value={formData.mail ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,7 +311,7 @@ export default function SignupForm({
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
               label="Codice Fiscale"
               name="cf"
-              disabled={formSettings.locked!.includes("cf")}
+              disabled={formSettings.locked?.includes("cf")}
               inputProps={{ maxLength: 16 }}
               value={formData.cf ?? ""}
               error={!!fieldErrors.cf}
@@ -334,7 +334,7 @@ export default function SignupForm({
                 labelId="gender-label"
                 label="Genere"
                 name="sesso"
-                disabled={formSettings.locked!.includes("sesso")}
+                disabled={formSettings.locked?.includes("sesso")}
                 value={formData.sesso ?? ""}
                 onChange={(e: SelectChangeEvent<string>) => onSelect(e)}
               >
@@ -356,7 +356,7 @@ export default function SignupForm({
               label="Password"
               name="oldPassword"
               type={showOldPw ? "text" : "password"}
-              disabled={formSettings.locked!.includes("oldPassword")}
+              disabled={formSettings.locked?.includes("oldPassword")}
               value={formData.oldPassword ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 onInput(e);
@@ -386,7 +386,7 @@ export default function SignupForm({
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
               label="Password"
               name="password"
-              disabled={formSettings.locked!.includes("password")}
+              disabled={formSettings.locked?.includes("password")}
               type={showPw ? "text" : "password"}
               value={formData.password ?? ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInput(e)}
@@ -399,7 +399,7 @@ export default function SignupForm({
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            disabled={formSettings.locked!.includes("password")}
+                            disabled={formSettings.locked?.includes("password")}
                             aria-label="Mostra/Nascondi password"
                             onClick={() => setShowPw((v) => !v)}
                             edge="end"
@@ -421,7 +421,7 @@ export default function SignupForm({
               label="Ripeti password"
               name="confirmPassword"
               type={showPw2 ? "text" : "password"}
-              disabled={formSettings.locked!.includes("confirmPassword")}
+              disabled={formSettings.locked?.includes("confirmPassword")}
               value={formData.confirmPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onInput(e)}
               error={!!fieldErrors.confirmPassword}
