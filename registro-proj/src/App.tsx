@@ -28,7 +28,7 @@ export default function App() {
     return (
       <>
         <Navbar
-          username={loggedUser?.name ?? undefined}
+          username={loggedUser?.nome ?? undefined}
           onLogout={() => {
             setIsLogged((prev) => !prev);
             setLoggedUser(null);
