@@ -16,7 +16,7 @@ import { Toolbar } from "@mui/material";
 
 export default function App() {
   // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
-  const [isLogged, setIsLogged] = useState<boolean>(false);
+  const [isLogged, setIsLogged] = useState<boolean>(true); //ricordare da mettere a false accrochio per visulizzare le pagine!
   const [loggedUser, setLoggedUser] = useState<User | null>(null);
 
   // LogCheck è un com a tutti gli effetti. Metterlo dentro ad App è comodo solo perchè lo usiamo solo in App e così evitiamo di passarli giù isLogged={isLogged} ma forse meglio spostarlo in sui file
