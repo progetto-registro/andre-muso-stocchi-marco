@@ -27,7 +27,7 @@ import Row from "./Row";
             
     <Box >
     <TableContainer sx={{border: '1px solid ',
-        borderRadius: '8px',fontFamily: 'Roboto',}}>
+        borderRadius: '8px',}}>
       <Table aria-label="collapsible table">
         <TableHead>
           <TableRow>
