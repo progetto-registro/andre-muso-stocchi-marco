@@ -1,24 +1,17 @@
-import { Box, Collapse, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import React from "react";
+import { Box, Button, Collapse, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import React, { useState } from "react";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-interface RowProps 
-{
-  id:number
-  dataLezione: Date;
-   studenti: Studente[];
-}
- interface Studente {
-    cf:string
-    ore:number
-   
-}
+import type { Lezione } from "../../models/Lezione";
 
 
-export default function Row( props:  RowProps) {
+
+
+export default function Row( props:  Lezione) {
   
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] =useState(false);
 
+ 
   return (
     <React.Fragment>
       <TableRow >
@@ -35,7 +28,7 @@ export default function Row( props:  RowProps) {
           {props.id}
         </TableCell>
         <TableCell align="right">{String(props.dataLezione)}</TableCell>
-        
+        <TableCell> <Button variant="contained" >MODIFICA</Button></TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
