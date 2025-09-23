@@ -2,25 +2,17 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} 
 
 
 import Row from "./Row";
-
-  interface Lezione {
-  id: number;
-  
-  dataLezione: Date;
-   studenti: Studente[];
-}
-
-  interface Studente {
-    cf:string
-    ore:number
-   
-}
+import type { Lezione } from "../../models/Lezione";
 
 
-  export default function TableRegister({ lezioni }: { lezioni: Lezione[]})
+
+
+
+
+  export default function TableRegister({ lezioni }: { lezioni: Lezione[] | undefined })
 {
     
-     if (!lezioni) {
+    if (!lezioni) {
     return <div>Caricamento...</div>;
   }
         return<>
@@ -38,7 +30,7 @@ import Row from "./Row";
         </TableHead>
         <TableBody>
           {lezioni.map((lezione) => (
-            <Row key={lezione.id} {...lezione} />
+            <Row key={lezione.id} {...lezione}/>
           ))}
         </TableBody>
       </Table>
