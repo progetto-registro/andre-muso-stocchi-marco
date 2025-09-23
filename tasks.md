@@ -15,6 +15,10 @@
 
 # ANDRE
 
+- [ ] trasform per vedere tutto form ? brutto . solo su signuppage ? no
+- [ ] theme ? themeProvider nel main e non a muzzo
+- [ ] uniformare comp loggati : tutti ricevono loggedUser (non .name !) e se serve anche callback per sloggare. guardare **LogCheck** (=> class Register?)
+- [ ] definire type Props di tutti comp (parti da singup page)
 - [ ] provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
 - [ ] ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
 - [x] fare **routing** , tutti i comp principali (**pagine**) vuoti

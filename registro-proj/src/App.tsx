@@ -17,7 +17,7 @@ import { Toolbar } from "@mui/material";
 export default function App() {
   // se poi vogliamo provare ad usare context isLogged è una di quelle cose che cambia raramente e condiziona tutto che ci sta di brutto in Context (penso)
   const [isLogged, setIsLogged] = useState<boolean>(true); //ricordare da mettere a false accrochio per visulizzare le pagine!
-  const [loggedUser, setLoggedUser] = useState<User | null>(null);
+  const [loggedUser, setLoggedUser] = useState<User | undefined>();
 
   // LogCheck è un com a tutti gli effetti. Metterlo dentro ad App è comodo solo perchè lo usiamo solo in App e così evitiamo di passarli giù isLogged={isLogged} ma forse meglio spostarlo in sui file
   //nei Routes LogCheck non avrà il path perchè la navigazione non " si ferma mai li", ci passa per andare altrove e subire controllo. Senza controllo si poteva non mettere e piazzarci la NavBar esterna. Oppure anche con controllo potevamo non usarlo e controllare ogni Route
@@ -31,7 +31,7 @@ export default function App() {
           username={loggedUser?.nome ?? undefined}
           onLogout={() => {
             setIsLogged((prev) => !prev);
-            setLoggedUser(null);
+            setLoggedUser(undefined);
           }}
         />
         <Toolbar />
@@ -74,7 +74,15 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/class-register" element={<ClassRegister />} />
         <Route path="/new-attendance" element={<NewAttendance />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProfilePage
+              loggedUser={loggedUser}
+              onLogin={(userUp: User) => setLoggedUser(userUp)}
+            />
+          }
+        />
         {/* Navigate è un comp con usenavigate implementato comodo. scrivere replace invece è come passare props replace={true}, vale in generale proprio, e passandogli replace true il navigate elimina dalla history l url in cui sei andato per sbaglio così se fai indietro non ci rivai di nuovo ma vai dov eri prima " davvero "  */}
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Route>
