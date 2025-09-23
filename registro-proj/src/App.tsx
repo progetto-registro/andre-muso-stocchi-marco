@@ -9,7 +9,7 @@ import SignupPage from "./components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
 import ClassRegister from "./components/ClassRegister/ClassRegister";
-import NewAttendance from "./components/NewAttendance/NewAttendance";
+import NewAttendance from "./components/EditLesson/NewAttendance";
 import ProfilePage from "./components/ProfilePage/ProfilePage";
 import Navbar from "./components/Navbar/Navbar";
 import { Toolbar } from "@mui/material";
@@ -72,8 +72,7 @@ export default function App() {
       <Route element={<LogCheck />}>
         <Route path="/home" element={<HomePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/class-register" element={<ClassRegister />} />
-        <Route path="/new-attendance" element={<NewAttendance />} />
+        <Route path="/class-register/*" element={<ClassRegister />} />
         <Route
           path="/profile"
           element={
