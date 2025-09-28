@@ -43,7 +43,7 @@ export default function Row({ lezione }: LezioneProps) {
         </TableCell>
         {/*data lezione */}
         <TableCell align="right">{String(lezione.dataLezione)}</TableCell>
-        {/*bottone che chiama la callback  e passa su la lezione */}
+        {/*bottone che chiama la callback onModify  e passa su la lezione */}
         <TableCell>
           <Button variant="contained">MODIFICA</Button>
         </TableCell>

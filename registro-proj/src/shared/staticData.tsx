@@ -14,6 +14,6 @@ export const navItems: NavItem[] = [
   { title: "Home", icon: <HomeIcon />, to: "/home" },
   { title: "Dashboard", icon: <DashboardIcon />, to: "/dashboard" },
   { title: "Registro", icon: <ClassIcon />, to: "/class-register" },
-  { title: "Nuova lezione", icon: <AddTaskIcon />, to: "/new-attendance" },
+  { title: "Nuova lezione", icon: <AddTaskIcon />, to: "/class-register/new" },
   { title: "Profilo", icon: <PersonIcon />, to: "/profile" },
 ];

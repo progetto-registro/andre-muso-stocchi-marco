@@ -55,7 +55,7 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
   //   { text: "Home", icon: <HomeIcon />, to: "/home" },
   //   { text: "Dashboard", icon: <DashboardIcon />, to: "/dashboard" },
   //   { text: "Registro", icon: <ClassIcon />, to: "/class-register" },
-  //   { text: "Nuova lezione", icon: <AddTaskIcon />, to: "/new-attendance" },
+  //   { text: "Nuova lezione", icon: <AddTaskIcon />, to: "class-register/new },
   //   { text: "Profilo", icon: <PersonIcon />, to: "/profile" },
   // ];
 

@@ -1,9 +1,10 @@
-import type { Studente } from "./Studente";
+import type { PresenzaStudente } from "./Studente";
 
-  export type Lezione = {
+export type Lezione = {
   id: number;
-  
-  dataLezione: Date;
-   studenti: Studente[];
-   studenteDaModificare: Studente | undefined;
-}
+
+  dataLezione: string; //formato "DD/MM/YYYY" ( da gestire magari con dayjs tra poco)
+  studenti: PresenzaStudente[];
+};
+
+export type LezioneCreate = Omit<Lezione, "id">;

@@ -88,7 +88,7 @@ export default function ClassRegister() {
         // fallback: se ricarichi pagina o arrivi da link e non hai lo state
 
         //non esiste un api endpoint per fetchare solo una lezione, e tutte le fetchamo già in sto comp di fatto., qunidi
-        //al più aggiungere refetch togglando stato apposta   . sennò se ci fosse per fare fetch dentro useEffect (()=>{})() per bypassare il noasync ? informarsi
+        //al più aggiungere refetch togglando stato apposta o direttamente   . sennò se ci fosse per fare fetch dentro useEffect (()=>{})() per bypassare il noasync ? informarsi
         const maybeFound = lezioni.find((l) => l.id === id);
         if (maybeFound) {
           setLezioneInModifica(maybeFound);
@@ -130,7 +130,7 @@ export default function ClassRegister() {
         copy[i] = saved;
         return copy;
       } // se siamo in /edit lo cambia senza spostarlo
-      return [saved, ...prev]; //se siamo in /new lo aggiunge in testa
+      return [...prev, saved]; // con postman mi pare agginga i nuovi in coda
 
       // guardare se backend le conserva ordinate per data o per ordine di inserimento; creare ordinamento per renderarle sempre ordinate nella tab visualizzazione RegisterTable Row Sorted
     });
@@ -157,7 +157,7 @@ export default function ClassRegister() {
           maxWidth="sm" // con tutto a 100vh vw si perde senso della responsività : capire meglio ma di base lasciare i 100 solo sulla box (sfondo) e idem per il position fixed
           sx={{
             fontFamily: "Roboto",
-            position: "fixed",
+            // position: "fixed",
             top: 0,
             left: 0,
             height: "100vh",
@@ -172,7 +172,7 @@ export default function ClassRegister() {
               {errorMessage}
             </Alert>
           )}
-          {mode !== "view" ? ( //lezioneInModifica ===null => falsy => registro visualizzazione; lezioneInModifica {} as Lezione => truly =>lezioneInModifica.id === undefined => new ; Lezione vera completa => .id truly => edit
+          {mode !== "view" ? ( //prim delle mode era con trucchetto :lezioneInModifica ===null => falsy => registro visualizzazione; lezioneInModifica {} as Lezione => truly =>lezioneInModifica.id === undefined => new ; Lezione vera completa => .id truly => edit
             <EditLesson
               lezioneInModifica={lezioneInModifica}
               onSaved={onSaved}

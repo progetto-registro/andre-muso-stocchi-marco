@@ -8,8 +8,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import SignupPage from "./components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
-import ClassRegister from "./components/ClassRegister/ClassRegister";
-import NewAttendance from "./components/EditLesson/NewAttendance";
+import ClassRegister from "./components/ClassRegister2/ClassRegister";
 import ProfilePage from "./components/ProfilePage/ProfilePage";
 import Navbar from "./components/Navbar/Navbar";
 import { Toolbar } from "@mui/material";
@@ -68,7 +67,6 @@ export default function App() {
         }
       />
       {/*LOGGATE*/}
-      {/*spiegazione LogCheck in suo .tsx se alla fine lo spostiamo*/}
       <Route element={<LogCheck />}>
         <Route path="/home" element={<HomePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
