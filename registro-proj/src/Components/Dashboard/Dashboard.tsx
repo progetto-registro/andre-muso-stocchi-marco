@@ -1,5 +1,4 @@
 import { Alert, Box, Container } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import type { Studente } from "../../models/Studente";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -8,7 +7,6 @@ import EditStudent from "../EditStudent/EditStudent";
 import DashboardRegister from "./DashboardRegister";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [studenti, setStudenti] = useState<Studente[]>([]);
   const [refetch, setRefetch] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -19,7 +17,9 @@ export default function Dashboard() {
   //La classe ClassRegisterMode in realtà va bene anche qui visto che ha gli stessi stati
   const [mode, setMode] = useState<ClassRegisterMode>("view");
 
-  const apiLink = "https://68d7e3ba2144ea3f6da6bd33.mockapi.io/api/studenti/Studenti";
+  const apiLink =
+    "https://68d7e3ba2144ea3f6da6bd33.mockapi.io/api/studenti/Studenti";
+    //"http://localhost:8080/api/studenti";
 
   useEffect(() => {
     axios
@@ -53,40 +53,49 @@ export default function Dashboard() {
   }, [refetch]);
 
   const onCreate = () => {
-    navigate("/dashboard/new");
+    setStudenteInModifica(undefined);
+    //navigate("/dashboard/new");
+    setMode("edit");
   };
   const onModify = (studente: Studente) => {
     setStudenteInModifica(studente);
-    navigate(`/dashboard/${studente.cf}/edit`, { state: { studente } });
+    //navigate(`/dashboard/${studente.cf}/edit`, { state: { studente } });
+    setMode("edit");
   };
 
   const onDelete = async (studente: Studente) => {
     try {
-      await axios.delete(
-        apiLink+`/${studente.cf}`
-      );
+      await axios.delete(apiLink + `/${studente.cf}`);
       setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
     } catch (error) {
       console.error(error);
       setErrorMessage("Impossibile eliminare lo studente. Riprova più tardi.");
     }
-  };
-
-  const onSaved = (saved: Studente) => {
-    setStudenti((prev) => {
-      const esiste = prev.some((s) => s.cf === saved.cf);
-
-      if (esiste) {
-        return prev.map((s) => (s.cf === saved.cf ? saved : s));
-      } else {
-        return [...prev, saved];
-      }
-    });
-
     setMode("view");
   };
 
-  const onCancel = () => navigate("/dashboard");
+  const onSaved = async (saved: Studente) => {
+    try {
+      if (studenti.some((s) => s.cf === saved.cf)) {
+        //se dev'essere modificato
+        await axios.put(`${apiLink}/${saved.cf}`, saved);
+        setStudenti((prev) => prev.map((s) => (s.cf === saved.cf ? saved : s)));
+      } else {
+        // se va aggiunto
+        await axios.post(apiLink, saved);
+        setStudenti((prev) => [...prev, saved]);
+      }
+      setMode("view");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Errore nel salvataggio dello studente.");
+    }
+  };
+
+  const onCancel = () => {
+    setMode("view");
+    setStudenteInModifica(undefined);
+  };
 
   return (
     <>

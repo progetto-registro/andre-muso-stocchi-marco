@@ -22,6 +22,7 @@ export default function DashboardRegister({
   studenti,
   onModify,
   onDelete,
+  onCreate,
 }: DashboardRegisterProps) {
   if (!studenti) {
     return <div>Caricamento...</div>;
@@ -37,6 +38,9 @@ export default function DashboardRegister({
                 <TableCell>Nome</TableCell>
                 <TableCell align="right">Cognome</TableCell>
                 <TableCell align="right">CF</TableCell>
+                <TableCell align="right">
+                  <Button onClick={onCreate}>Aggiungi Studente</Button>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
