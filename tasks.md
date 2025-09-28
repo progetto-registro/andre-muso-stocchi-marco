@@ -12,24 +12,27 @@
 # STOCCHI
 
 - [x] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
+- [x] iniziare **class-register** (>tableregister > row)
 
 # ANDRE
 
+- [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
 - [ ] trasform per vedere tutto form ? brutto . solo su signuppage ? no
-- [ ] theme ? themeProvider nel main e non a muzzo
+- [ ] 🟢(vediamo) theme ? themeProvider nel main e non a muzzo
 - [ ] uniformare comp loggati : tutti ricevono loggedUser (non .name !) e se serve anche callback per sloggare. guardare **LogCheck** (=> class Register?)
-- [ ] definire type Props di tutti comp (parti da singup page)
-- [ ] provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
-- [ ] ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
+- [ ] 🟡 definire type Props di tutti comp (parti da singup page)
+- [ ] 🟡 provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
+- [ ] (non lo faremo) ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
 - [x] fare **routing** , tutti i comp principali (**pagine**) vuoti
 - [x] fare **NavBar**
 - [x] settare **API**
 - [x] fare **modifica utente == profilo** riutilizzando SignupForm , leggi sotto
-- [ ] **!!!!!!!!!!!!!!!!!!!!!!!!!** valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt. **User loggato** da fare alla peggio con props App=> loggedComp e **callback** su signup e login
+- [x] adattare **class-register** anche per edit e new
+- [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt. **User loggato** da fare alla peggio con props App=> loggedComp e **callback** su signup e login
 - [ ] approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
-- [ ] ora che c'è **BEExpress** provare endpoint ( alcuni non vanno) e dirlo prof, sistemare **ERROR_CODE** e **tipi**
-- [ ] nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
-- [ ] La data non fuzniona, fare context (User, isLogged, etc)
+- [ ] 🟠 controllare endpoint e funziona,mento con be
+- [ ] 🔴nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
+- [ ] 🔴La data non fuzniona, fare context (User, isLogged, etc)
 
 # PER TUTTI
 
@@ -44,7 +47,7 @@ npm i @mui/material @emotion/react @emotion/styled @mui/x-date-pickers @mui/icon
 
 npm i -D @types/validator
 
-##
+## per fare le cose
 
 - I componenti che sono una pagina li chiamamo NomePage (li ho già fatti),e ognuno sta in una cartella con il suo stesso nome, tutti dentro components. In quella cartella metteremo css o altri comp che servono a quel componente (pezzi di pagina o interfaccia). Non sarà magari il miglior modo ma per noi secondo me è comodo, meglio di niente.
 
