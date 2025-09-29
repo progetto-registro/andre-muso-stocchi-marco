@@ -8,7 +8,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import SignupPage from "./components/SignupPage/SignupPage";
 import HomePage from "./components/HomePage/HomePage";
 import Dashboard from "./components/Dashboard/Dashboard";
-import ClassRegister from "./components/ClassRegister2/ClassRegister";
+import ClassRegister from "./components/ClassRegister/ClassRegister";
 import ProfilePage from "./components/ProfilePage/ProfilePage";
 import Navbar from "./components/Navbar/Navbar";
 import { Toolbar } from "@mui/material";

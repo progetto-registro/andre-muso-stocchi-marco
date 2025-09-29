@@ -272,7 +272,7 @@ export default function SignupForm({
               onChange={(newValue: Dayjs | null) => {
                 setFormData((prev) => ({
                   ...prev,
-                  birthDate: newValue ?? undefined,
+                  dataNascita: newValue ?? undefined,  //🔴come fare che se metto chiave sbagliata mi segna rosso ??
                 }));
               }}
               slotProps={{

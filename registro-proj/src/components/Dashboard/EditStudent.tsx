@@ -19,8 +19,8 @@ export default function EditStudent({
     cf: "",
     nome: "",
     cognome: "",
-    //Vedere come gestire le ore
-    ore: 0,
+    dataNascita:"", // da implementare
+    sesso: undefined, // da implementare (può essere "M" o "F" o undefined ma validazione solo M o F)
   });
 
   //Nel caso il studente va solo modificato

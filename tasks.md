@@ -16,6 +16,7 @@
 
 # ANDRE
 
+- [ ] tutte le volte che ricevi un 401 non auth devi andare su pagina login
 - [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
 - [ ] trasform per vedere tutto form ? brutto . solo su signuppage ? no
 - [ ] 🟢(vediamo) theme ? themeProvider nel main e non a muzzo
@@ -32,7 +33,7 @@
 - [ ] approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
 - [ ] 🟠 controllare endpoint e funziona,mento con be
 - [ ] 🔴nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
-- [ ] 🔴La data non fuzniona, fare context (User, isLogged, etc)
+- [x] La data non fuzniona, fare context (User, isLogged, etc)
 
 # PER TUTTI
 

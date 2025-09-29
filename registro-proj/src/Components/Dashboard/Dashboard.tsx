@@ -3,7 +3,7 @@ import type { Studente } from "../../models/Studente";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
-import EditStudent from "../EditStudent/EditStudent";
+import EditStudent from "./EditStudent";
 import DashboardRegister from "./DashboardRegister";
 
 export default function Dashboard() {
