@@ -8,6 +8,7 @@ import TableRegister from "./TableRegister";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import type { Lezione } from "../../models/Lezione";
 import type { Studente } from "../../models/Studente";
+import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
 
 // mappa status code con messaggio (verificare che questo mapping abbia senso e sia usato bene, e che sia completo)
 function mapErrorMessage(err: unknown): string {
@@ -68,7 +69,7 @@ export default function ClassRegister() {
         }
       } catch (err) {
         setErrorMessage(mapErrorMessage(err));
-        navigateLandingPageIfNotAuth(err);
+        navigateLandingPageIfNotAuth(err,navigate);
       } finally {
         setLoading(false);
       }
@@ -142,13 +143,7 @@ export default function ClassRegister() {
     }, {} as Record<string, { nome?: string; cognome?: string }>); //  l init usato per tipizzare fiero
   }, [studenti]); // ok lo fa quando cambia studenti, ma non rerendera subito dopo perchè non va a cambiare uno stato eventuale
 
-  const navigateLandingPageIfNotAuth=(err: unknown):void=>{   
-    const errAx= err as AxiosError<any>;
-        if(errAx.response?.status===401){
-          //mettere messaggio in rotellina in questo caso 
-          navigate("/");
-        }
-  }
+  
 
   // gli HANDLER per figlio per cambiare mode
   const onCreate = () => {
@@ -222,7 +217,7 @@ export default function ClassRegister() {
       }
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err);
+      navigateLandingPageIfNotAuth(err,navigate);
       // non navighiamo da nessuna parte (es. edit rimani in edit e puoi correggere)
     }
   };
@@ -240,7 +235,8 @@ export default function ClassRegister() {
       }
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err);
+      navigateLandingPageIfNotAuth(err,navigate);
+
     }
   };
 

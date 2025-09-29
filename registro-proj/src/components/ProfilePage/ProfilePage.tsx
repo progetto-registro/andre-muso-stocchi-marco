@@ -10,6 +10,7 @@ import {
   signupFormSettings,
   visualizzaProfiloFormSettings,
 } from "../../models/FormSettings";
+import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
 
 type ProfilePageProps = {
   loggedUser: User | undefined;
@@ -21,7 +22,7 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
   const [formMessage, setFormMessage] = useState<string>(""); // Con validazione nativa con Box type form sicuramente c erano modi migliori.. messaggio generico in basso potremmo differenziare a seconda del campo però ci sarebbe da pensarci perchè isFormComplete al momento non penso possa returnare stringa
   const [submitting, setSubmitting] = useState<boolean>(false); //così  uno non può spammare summing durante controllo fecth perchè si disabilita bottone
   const [view, setView] = useState<boolean>(true);
-
+  const navigate = useNavigate();
   const handleSubmit = async (formData: User) => {
     if (view) {
       setView(false);
@@ -46,6 +47,7 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
               );
             } else if (s === 401) {
               setFormMessage("Non autorizzato.");
+              navigateLandingPageIfNotAuth(error,navigate);
             } else if (s === 404) {
               setFormMessage("API non trovata.");
             } else {

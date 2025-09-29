@@ -5,9 +5,12 @@ import axios from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import EditStudent from "./EditStudent";
 import DashboardRegister from "./DashboardRegister";
+import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [studenti, setStudenti] = useState<Studente[]>([]);
+  const navigate = useNavigate();
   const [refetch, setRefetch] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [studenteInModifica, setStudenteInModifica] = useState<
@@ -37,6 +40,7 @@ export default function Dashboard() {
           const s = error.response.status;
           if (s === 401) {
             setErrorMessage("Non autorizzato.");
+             navigateLandingPageIfNotAuth(error,navigate);
           } else if (s === 404) {
             setErrorMessage("API non trovata.");
           } else {
