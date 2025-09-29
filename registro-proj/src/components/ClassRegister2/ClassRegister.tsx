@@ -9,8 +9,7 @@ import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import type { Lezione } from "../../models/Lezione";
 import type { Studente } from "../../models/Studente";
 
-// ────────────────────────────────────────────────────────────────────────────────
-// Helper: messaggi da status
+// mappa status code con messaggio (verificare che questo mapping abbia senso e sia usato bene, e che sia completo)
 function mapErrorMessage(err: unknown): string {
   const e = err as AxiosError<any>;
   if (e.response) {
@@ -24,36 +23,32 @@ function mapErrorMessage(err: unknown): string {
   }
   return "Errore applicativo imprevisto.";
 }
-// ────────────────────────────────────────────────────────────────────────────────
 
 export default function ClassRegister() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Dati principali
   const [lezioni, setLezioni] = useState<Lezione[]>([]);
   const [studenti, setStudenti] = useState<Studente[]>([]);
   const [reloadTag, setReloadTag] = useState<boolean>(false); //ogni volta che lo cambiamo riparte lo useEffect che fa la get degli studenti e delle lezioni.
 
-  // Modalità corrente (lista / edit / new)
+  // in new una sola riga, collassata, compilabile; se siamo in edit tutte le righe, e quella in edit on focus, cvollassata e interagibile; se siamo in view tutte le righe non interagibili, se si viene da una new o da una edit, quella aperta e on focus
   const [mode, setMode] = useState<ClassRegisterMode>("view");
 
-  // Se siamo in edit, quale lezione? (serve anche per “aprire”/focalizzare la riga)
+  // Se siamo in edit, quale lezione? (serve per passare mode giusto, aprire e mettere on focus)
   const [editingLessonId, setEditingLessonId] = useState<number | undefined>(
     undefined
   );
 
-  // Focus della riga dopo un salvataggio/redirect alla lista
+  // Focus della riga dopo un salvataggio o se ci arrivi da url
   const [focusLessonId, setFocusLessonId] = useState<number | undefined>(
     undefined
   );
 
-  // UI
   const [loading, setLoading] = useState<boolean>(false); // sincronizzare con quella libreria che fa l animazione zustang qualcosa
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // ───────────────────────────────────────────────────────────────────────────────
-  // GET iniziale (lezioni + studenti)
+  // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -63,12 +58,12 @@ export default function ClassRegister() {
         const lezRes = await axios.get<Lezione[]>("/api/lezioni");
         setLezioni(lezRes.data ?? []);
 
-        // Studenti (se la tua API è diversa, cambia l’endpoint; se ancora non c’è, lascia try/catch)
+        // Studenti
         try {
           const studRes = await axios.get<Studente[]>("/api/studenti");
           setStudenti(studRes.data ?? []);
         } catch {
-          // se non esiste ancora l’endpoint studenti, non blocchiamo nulla
+          // se non riesce a caricare gli studenti, mette vuoto (magari gestire meglio)
           setStudenti([]);
         }
       } catch (err) {
@@ -79,21 +74,20 @@ export default function ClassRegister() {
     })();
   }, [reloadTag]);
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Parsing del path → imposta mode e (se edit) l’id
+  // parsa il path quando cambia e imposta mode e se siamo in edit l id che ricava dal path
   useEffect(() => {
-    const path = location.pathname; // es. /class-register/123/edit | /class-register/new | /class-register
-    // new
+    const path = location.pathname; // es. /class-register/123../edit | /class-register/new | /class-register
+    // NEW
     if (path.endsWith("/new")) {
       setMode("new");
       setEditingLessonId(undefined);
-      // se arrivi diretto in /new non c’è focus sulla lista (non siamo in lista)
+      // in new il focus se c'è va tolto perchè c'è solo una row, non ha senso
       setFocusLessonId(undefined);
       return;
     }
 
-    // edit
-    const parts = path.split("/").filter(Boolean); // ["class-register","123","edit"]
+    // EDIT
+    const parts = path.split("/").filter(Boolean); // ["class-register","123","edit"] ; verrebbe ["", ..] stringa vuota prima di primo slash; con quella filter elimini le falsy, come "" ( o NaN o i famosi)
     if (
       parts.length === 3 &&
       parts[0] === "class-register" &&
@@ -108,25 +102,25 @@ export default function ClassRegister() {
       }
       setMode("edit");
       setEditingLessonId(id);
-      // non tocchiamo focusLessonId qui; lo gestiamo al salvataggio per il ritorno in lista
+      // in teoria abbiamo anche state del navigate con dentro la lesson e non solo l id.. ma non penso che la usiamo masi.. sotto passiamo le lezioni e l id di quella in modifica che sta nelll url direttamente
+      // l onfocus lo gestimao negli onSaveLesson ( "da dove veniamo"); tanto se arriamo in edit da url basta lessonId per mettere il focus su row giusta
       return;
     }
 
-    // default: lista
+    // VIEW (default)
     setMode("view");
     setEditingLessonId(undefined);
 
-    // Se torniamo alla lista, possiamo raccogliere eventuale focus passato via navigate(state)
+    // Se torniamo a view, settiamo il focus che ci siamo messi nello state della navigate dentro l onSaveLesson (ma ce l eravamo messi anche dentro focusLessonId direttamente ... (???!) )
     const maybeFocus = (location.state as any)?.focusId as number | undefined;
-    if (maybeFocus) setFocusLessonId(maybeFocus);
-    // pulisci lo state di navigazione per non rifare focus ad ogni mount
+    if (maybeFocus) setFocusLessonId(maybeFocus); // sennò non cancella quelloche c eravamo comunque passati.. se ce l eravamo passati .. perchè o tutte e due o niente penso
+    // cancello state del focus così ad ogni mount per qualsiasi motivo non mi ricollassa e focussa l originalmente aperto e focussato
     if (maybeFocus) {
-      navigate("/class-register", { replace: true, state: null });
+      navigate("/class-register", { replace: true, state: null }); // non capisco perchè dovrebbe non focussare piuu che tanto passiamo focusLessonId che sopravvive ai render ed è lui a fare la cond ( da capire perchè funziona o no), a meno che non ci sia un trucco su NUmber, null e undefined, e che quindi cambio perchè non sono cosiì pro da apprezzarne la non chiarezza
     }
   }, [location.pathname, location.state, navigate]);
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Mappa studenti by CF ordinati (cognome, nome, cf)
+  // Mappa studenti by CF ordinati (cognome>nome>cf)
   // 1) mappa ordinata string (cf) {nome, cognome} , in realtà record, che è solo un tipo non "struttura" come Map con sui metodi etc. Se chiave è string e non cambia tutto spessissimo va benissimo record
   const allStudentByCfSorted = useMemo<
     Record<string, { nome?: string; cognome?: string }>
@@ -145,10 +139,9 @@ export default function ClassRegister() {
       acc[s.cf] = { nome: s.nome, cognome: s.cognome };
       return acc;
     }, {} as Record<string, { nome?: string; cognome?: string }>); //  l init usato per tipizzare fiero
-  }, [studenti]); // ok lo fa quando cambia studenti, ma non rerendera subito dopo
+  }, [studenti]); // ok lo fa quando cambia studenti, ma non rerendera subito dopo perchè non va a cambiare uno stato eventuale
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Handlers “di pagina”: navigazione tra mode
+  // gli HANDLER per figlio per cambiare mode
   const onCreate = () => {
     navigate("/class-register/new");
   };
@@ -163,8 +156,7 @@ export default function ClassRegister() {
     navigate("/class-register");
   };
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Salvataggi (new / edit) – payload: { id?; dataLezione; studenti }
+  // l HANDLER del figlio per SALVARE una NEW  o una EDIT
   const onSaveLesson = async (payload: {
     id?: number;
     dataLezione: string;
@@ -174,14 +166,14 @@ export default function ClassRegister() {
 
     try {
       if (payload.id != null) {
-        // EDIT → POST /api/lezioni/modifica
+        // EDIT => POST /api/lezioni/modifica
         await axios.post("/api/lezioni/modifica", {
           id: payload.id,
           dataLezione: payload.dataLezione,
           studenti: payload.studenti,
         });
 
-        // Aggiorna cache locale (sostituzione)
+        // se andata bene con modifica/new aggiorniamo quelle locali
         setLezioni((prev) => {
           const i = prev.findIndex((l) => l.id === payload.id);
           if (i < 0) return prev;
@@ -195,12 +187,12 @@ export default function ClassRegister() {
           return copy;
         });
 
-        // Rientra in lista e focalizza quella riga
-        setFocusLessonId(payload.id);
+        // dopo modifica/new quella che era in modifica/new rimane aperta in view
+        setFocusLessonId(payload.id); // penso sia ridondante
         navigate("/class-register", { state: { focusId: payload.id } });
       } else {
-        // NEW → PUT /api/lezioni/nuova
-        // NB: il BE (poco ortodosso) restituisce 200; se ti ritorna la lezione creata, usa quella; se no, rifai GET
+        // NEW => PUT /api/lezioni/nuova
+        // BErestituisce 200; controllare se ritorna creata senno rifare la get (penso la ritorni, guardarci)
         const res = await axios.put<Lezione | undefined>("/api/lezioni/nuova", {
           dataLezione: payload.dataLezione,
           studenti: payload.studenti,
@@ -212,34 +204,27 @@ export default function ClassRegister() {
           setFocusLessonId(created.id);
           navigate("/class-register", { state: { focusId: created.id } });
         } else {
-          // se non torna l’oggetto, fai un refetch "soft"
+          // se non torna l’oggetto, refetch e si torna a view
           const lezRes = await axios.get<Lezione[]>("/api/lezioni");
           setLezioni(lezRes.data ?? []);
-          // prova a dedurre l’ultima (se il BE inserisce in coda) – fallback: niente focus
-          const last = lezRes.data?.at(-1);
-          if (last?.id != null) {
-            setFocusLessonId(last.id);
-            navigate("/class-register", { state: { focusId: last.id } });
-          } else {
-            navigate("/class-register");
-          }
+
+          navigate("/class-register");
         }
       }
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
-      // restiamo nella pagina corrente (edit/new) così l’utente vede l’errore e può correggere
+      // non navighiamo da nessuna parte (es. edit rimani in edit e puoi correggere)
     }
   };
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Delete lezione
+  // DELETE LEZIONE
   const onDeleteLesson = async (id: number) => {
     setErrorMessage(null);
     try {
-      await axios.delete("/api/lezione/elimina", { data: { id } }); // body nel delete
+      await axios.delete("/api/lezione/elimina", { data: { id } });
       setLezioni((prev) => prev.filter((l) => l.id !== id));
 
-      // Se eri in edit di quella lezione → torna alla lista
+      // se eri in view, ci rimani e fine; se eri in edit, torni a classregister senza focusid ovviamente ( non c'è piu la lez)
       if (mode === "edit" && editingLessonId === id) {
         navigate("/class-register");
       }
@@ -248,9 +233,6 @@ export default function ClassRegister() {
     }
   };
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Render
-  // (layout estetico lasciato simile al tuo; sistemerai poi)
   return (
     <Box
       sx={{
@@ -285,14 +267,6 @@ export default function ClassRegister() {
           </Alert>
         )}
 
-        {/* TODO: TableRegister deve supportare queste prop: 
-             - mode ("view" | "edit" | "new")
-             - lezioni (array)
-             - editingLessonId (serve per marcare la row in edit + aprirla)
-             - focusLessonId (serve per scrollIntoView/focus dopo salvataggio)
-             - onCreate, onModify, onCancelEdit, onSave, onDeleteLesson
-             - allStudentByCfToBeSorted (array Studente) oppure direttamente allStudentByCfSorted (record)
-        */}
         <TableRegister
           mode={mode}
           lezioni={lezioni}
@@ -303,7 +277,6 @@ export default function ClassRegister() {
           onCancelEdit={onCancelEdit}
           onSave={onSaveLesson}
           onDeleteLesson={onDeleteLesson}
-          // se preferisci passare il record già pronto, cambiale firma
           allStudentByCfSorted={allStudentByCfSorted}
           onReload={() => setReloadTag((p) => !p)}
         />

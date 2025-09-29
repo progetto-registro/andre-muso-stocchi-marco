@@ -19,7 +19,7 @@ export default function Dashboard() {
 
   const apiLink =
     "https://68d7e3ba2144ea3f6da6bd33.mockapi.io/api/studenti/Studenti";
-    //"http://localhost:8080/api/studenti";
+  //"http://localhost:8080/api/studenti";   basta usare /api/studenti . il primo pezzo è mappato su api nel viteconfig
 
   useEffect(() => {
     axios
