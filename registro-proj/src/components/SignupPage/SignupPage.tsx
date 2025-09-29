@@ -21,7 +21,7 @@ export default function SignupPage(props: any) {
     setFormMessage("");
 
     axios
-      .post("/api/auth/signup", formData)
+      .put("/api/auth/signup", formData)
       .then(function (response) {
         console.log(response);
         props.onLogin(formData);

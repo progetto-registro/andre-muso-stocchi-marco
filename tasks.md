@@ -16,6 +16,8 @@
 
 # ANDRE
 
+- [ ] 🔴 sostituire **error message** con **react tostify** e **AGGIUNGERE MESSAGGI NON ERROR**
+- [ ] 🔴 mui per la rotellina
 - [ ] tutte le volte che ricevi un 401 non auth devi andare su pagina login
 - [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
 - [ ] trasform per vedere tutto form ? brutto . solo su signuppage ? no
