@@ -1,3 +1,5 @@
+// questo file disattivato: cerco di capire le cose + primo tentativo non ottimizzato (senza splittare LoadingContext in Action e State)
+
 import {
   createContext,
   useCallback,
@@ -29,7 +31,7 @@ const LoadingContext = createContext<LoadingContextValue | null>(null); //va cre
 
 //LoadingContext è un oggetto grazie al quale facciamo funzionare sta cosa.. è la nostra api verso il framework ..e lo si può importare dove si vuole per usarlo in un comp per fornire il servizio.
 // Noi lo usiamo in LoadingProvider, dove conserveremo i dati e le funzioni che servono a tutti i comp per usare GlobalLoading e a GloabLoading per funzionarfe
-export function LoadingProvider({ children }: { children: ReactNode }) {
+export function LoadingProvider({ children }: { children: ReactNode }) { // per children guardare LoadingSystem, esempio migliore
   const [isOpen, setOpen] = useState(false); // overlay aperto/chiuso
   const [message, _setMessage] = useState(DEFAULT_MSG); // testo mostrato
   // comp rerendera se 1 cambia stato 2 cambia props 3 cambia context di cui è consumer (consumato),  4 cambio key jsx (smonta e rimonta proproio un altro, perdi anche stato e dire memo etc tutto) ...[5 (non fatto) "librerie con subscription tipo Redux/Zustand che chiamano il setState interno dell’hook"]
@@ -94,9 +96,10 @@ export function useLoading() {
   return ctx;
 }
 
-// !! quando cambia isOpen o message 1 il provider rerendera, 2 value dipendendo anche da loro viene ricalcolato e cambia (useMemo) , 3 🔴 tutta la subtree del Provider viene ri-invocata (re-run) (⬇️🔎SPIEGO SOTTO: intro) perché il padre ha ri-renderato (quindi di fatto tutto albero rerendera quindi inutile context a meno di memoizzare tutti i figli + props invariate che non impareremo a fare adesso. magari ci sono altri modi meno top ma meno hardcore per evitare rerender a cascata quando cambiano stati provider ma non penso...)
+// !! quando cambia isOpen o message 1 il provider rerendera, 2 value dipendendo anche da loro viene ricalcolato e cambia (useMemo) , 3 🔴 tutta la subtree del Provider viene ri-invocata (re-run) (⬇️🔎SPIEGO SOTTO: intro) perché il padre ha ri-renderato (quindi di fatto tutto albero rerendera quindi quasi inutile context a meno di memoizzare tutti i figli + props invariate che non impareremo a fare adesso. magari ci sono altri modi meno top ma meno hardcore per evitare rerender a cascata quando cambiano stati provider ma non penso...)
 // !! quanndo rerendera padre di provider rerendera anche provider ma se stato invariato, grazie a useCallBack che non fanno ricreare le funzioni e a memo che aggiorna value solo se cambia stato o funzioni, value non cambia e i consumer così non rerenderano, ma comunque tutta la subtree del provider viene rievocata
 //
 
-//⬇️🔎 si potrebbe usare il context con lo stato solo intorno alla rotella così "cascata dello stato " solo su di lei, mentre context delle func su tutta l app.. tanto non cambia.. però ho paura che si stia solo spostando problema perchè come fa .. no si può. si. basta esporre i setter degli stati, rotella può vedere entrambi i cointext e fa da ponte ?? capire meglio
-// penso che si usi molto React.Memo che è una specie di useMemo ma per l intero componente, dove le deps sono le prop, e in pratica salta il re-run se le prop sono invariate
+//⬇️🔎 si potrebbe usare il context con lo stato solo intorno alla rotella così "cascata dello stato " solo su di lei, mentre context delle func su tutta l app.. tanto non cambia.. però ho paura che si stia solo spostando problema perchè come fa .. no si può.. si si può. basta esporre i setter degli stati, rotella può vedere entrambi i cointext e fa da ponte ?? capire meglio
+// digressione: penso che si usi molto React.Memo che è una specie di useMemo ma per l intero componente, dove le deps sono le prop, e in pratica salta il re-run se le prop sono invariate. React.memo(Componente) fa skippare il rerun del comp (e del suo subtree quindi) se le props non sono cambiate (forse puoi selezionare quali stile deps non lo so, agari ci devi giocare con useMemo o useCallback in padre). SE PERò lo stato del comp memoizzato , quello dentro React.memo, cambia, parte rerender ovvio(se cambia stato padre invece no, se sue prop non cambiano.. penso nasca per qusto). idem se value di context di cui è consumer cambia. idem se cambia key jsx
+
