@@ -23,7 +23,6 @@ export default function HomePage() {
         margin: 0,
       }}
     >
-      {/* Titolo — BIANCO, semplice, moderno */}
       <Typography
         variant="h3"
         align="center"
