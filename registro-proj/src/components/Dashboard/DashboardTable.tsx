@@ -7,8 +7,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
 } from "@mui/material";
 import type { Studente } from "../../models/Studente";
+import { Add, Delete, Edit } from "@mui/icons-material";
 
 type DashboardTableProps = {
   studenti: Studente[] | undefined;
@@ -33,17 +35,19 @@ export default function DashboardTable({
     <>
       <Box>
         <TableContainer sx={{ border: "1px solid ", borderRadius: "8px" }}>
-          <Table aria-label="collapsible table">
+          <Table>
             <TableHead>
               <TableRow>
                 <TableCell />
-                <TableCell>Nome</TableCell>
-                <TableCell align="right">Cognome</TableCell>
-                <TableCell align="right">Data di nascita</TableCell>
-                <TableCell align="right">Sesso</TableCell>
-                <TableCell align="right">Codice fiscale</TableCell>
-                <TableCell align="right">
-                  <Button onClick={onCreate}>Aggiungi Studente</Button>
+                <TableCell>Cognome</TableCell>
+                <TableCell align="left">Nome</TableCell>
+                <TableCell align="center">Data di nascita</TableCell>
+                <TableCell align="center">Sesso</TableCell>
+                <TableCell align="center">Codice fiscale</TableCell>
+                <TableCell align="center">
+                  <Tooltip title="Aggiungi studente">
+                    <Button startIcon={<Add />} onClick={onCreate} />
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -53,18 +57,24 @@ export default function DashboardTable({
                 .map((studente) => (
                   <TableRow key={studente.cf}>
                     <TableCell />
-                    <TableCell>{studente.nome}</TableCell>
-                    <TableCell align="right">{studente.cognome}</TableCell>
-                    <TableCell align="right">{studente.dataNascita}</TableCell>
-                    <TableCell align="right">{studente.sesso}</TableCell>
-                    <TableCell align="right">{studente.cf}</TableCell>
-                    <TableCell align="right">
-                      <Button onClick={() => onModify(studente)}>
-                        Modifica
-                      </Button>
-                      <Button onClick={() => onDelete(studente)}>
-                        Elimina
-                      </Button>
+                    <TableCell>{studente.cognome}</TableCell>
+                    <TableCell align="left">{studente.nome}</TableCell>
+                    <TableCell align="center">{studente.dataNascita}</TableCell>
+                    <TableCell align="center">{studente.sesso}</TableCell>
+                    <TableCell align="center">{studente.cf}</TableCell>
+                    <TableCell align="center">
+                      <Tooltip title="Modifica">
+                        <Button
+                          startIcon={<Edit />}
+                          onClick={() => onModify(studente)}
+                        />
+                      </Tooltip>
+                      <Tooltip title="Elimina">
+                        <Button
+                          startIcon={<Delete />}
+                          onClick={() => onDelete(studente)}
+                        />
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}

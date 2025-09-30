@@ -265,7 +265,7 @@ export default function ClassRegister() {
           backgroundColor: "lightblue",
           flexDirection: "column",
           overflow: "auto",
-          py: 2,
+          py: 10,
         }}
       >
         {errorMessage && (
