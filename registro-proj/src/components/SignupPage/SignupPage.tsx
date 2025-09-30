@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import type { User } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
-import { Bounce, toast, ToastContainer } from 'react-toastify';
+
 import SignupForm from "../../shared/SignupForm";
 import {
-  type FormSettings,
+
   signupFormSettings,
 } from "../../models/FormSettings";
+import { popupAlert } from "../../shared/staticData";
 
 type SignupPageProps ={
   onLogin: (user: User)=> void;
@@ -23,22 +24,7 @@ export default function SignupPage({onLogin}: SignupPageProps) {
   const navigate = useNavigate(); //dopo submit si va alla home
 
 
-    const  ToastErrore = (text:string) => 
-    {
-        console.log(text)
-           toast.error(text, {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-            transition: Bounce,
-            });
-          
-    };
+   
 
 
 
@@ -51,6 +37,7 @@ export default function SignupPage({onLogin}: SignupPageProps) {
         console.log(response);
         onLogin(formData);
         setSubmitting(false);
+        popupAlert("Registrazione Avvenuta con successo!", "verde");
         navigate("/home", { replace: true }); //così dopo che uno si registra se fa indietro torna a home e non a signup
       })
       .catch((error: AxiosError<any>) => {
@@ -67,9 +54,12 @@ export default function SignupPage({onLogin}: SignupPageProps) {
             setFormMessage("Non autorizzato.");
           } else if (s === 404) {
             setFormMessage("API non trovata.");
+           
             
           } else {
             setFormMessage("Errore del server. Riprova più tardi.");
+             
+            
           }
          
         } else if (error.request) {

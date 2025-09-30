@@ -6,6 +6,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import type { AxiosError } from "axios";
 import type { NavigateFunction } from "react-router-dom";
 
+import { Bounce, toast } from "react-toastify";
+
 export type NavItem = {
   title: string;
   icon: React.ReactElement;
@@ -27,4 +29,36 @@ export const navigateLandingPageIfNotAuth=(err: unknown, navigate:NavigateFuncti
           //mettere messaggio in rotellina in questo caso 
           navigate("/");
         }
+  }
+
+
+  export function popupAlert(message:string,colore:string) {
+
+
+    if(colore=="rosso"){
+     
+           toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+            });
+    }else{
+      toast.success(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+      transition: Bounce,
+      });
+    }
   }

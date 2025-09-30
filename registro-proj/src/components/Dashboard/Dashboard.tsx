@@ -4,9 +4,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import EditStudent from "./EditStudent";
-import DashboardRegister from "./DashboardRegister";
-import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
+
+
+import { navigateLandingPageIfNotAuth, popupAlert } from "../../shared/staticData";
+
+
 import { useNavigate } from "react-router-dom";
+import DashboardTable from "./DashboardTable";
 
 export default function Dashboard() {
   const [studenti, setStudenti] = useState<Studente[]>([]);
@@ -54,6 +58,13 @@ export default function Dashboard() {
       });
   }, [refetch]);
 
+    useEffect(() => {
+      if (errorMessage) {
+        
+        popupAlert(errorMessage,"rosso");
+      }
+    }, [errorMessage]);
+
   const onCreate = () => {
     setErrorMessage("");
     setStudenteInModifica(undefined);
@@ -77,29 +88,31 @@ export default function Dashboard() {
     }
   };
 
-  const onSaved = async (saved: Studente) => {
+  const onSaved = async (studente: Studente) => {
     setErrorMessage("");
 
-    const payload: Studente = {
-      ...saved,
-      cf: saved.cf.toUpperCase(),
-      sesso: saved.sesso.toUpperCase() as "M" | "F",
-      dataNascita: saved.dataNascita,
+    const nuovoStudente: Studente = {
+      ...studente,
+      cf: studente.cf.toUpperCase(),
+      sesso: studente.sesso.toUpperCase() as "M" | "F",
+      dataNascita: studente.dataNascita,
     };
 
     try {
       if (studenteInModifica) {
         //Quando dev'essere modificato fa questo
-        await axios.post(`${apiLink}/modifica`, payload);
+        await axios.post(`${apiLink}/modifica`, nuovoStudente);
         setRefetch(true);
-        setStudenti((prev) =>
-          prev.map((s) => (s.cf.toUpperCase() === payload.cf ? payload : s))
+        setStudenti((precedente) =>
+          precedente.map((s) =>
+            s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s
+          )
         );
       } else {
         //Quando invece è nuovo fa questo
-        await axios.put(`${apiLink}/nuovo`, payload);
+        await axios.put(`${apiLink}/nuovo`, nuovoStudente);
         setRefetch(true);
-        setStudenti((prev) => [...prev, payload]);
+        setStudenti((prev) => [...prev, nuovoStudente]);
       }
 
       setMode("view");
@@ -133,24 +146,20 @@ export default function Dashboard() {
         }}
       >
         <Container
-          maxWidth="sm"
+          maxWidth="md"
           sx={{
             fontFamily: "Roboto",
-            position: "fixed",
-            top: 0,
-            left: 0,
             height: "100vh",
             width: "100vw",
             display: "flex",
             placeItems: "center",
             backgroundColor: "lightblue",
+            flexDirection: "column",
+            overflow: "auto",
+            py: 10,
           }}
         >
-          {errorMessage && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {errorMessage}
-            </Alert>
-          )}
+         
           {mode !== "view" ? (
             <EditStudent
               studenteInModifica={studenteInModifica}
@@ -159,7 +168,7 @@ export default function Dashboard() {
               onDelete={onDelete}
             />
           ) : (
-            <DashboardRegister
+            <DashboardTable
               studenti={studenti}
               onCreate={onCreate}
               onModify={onModify}

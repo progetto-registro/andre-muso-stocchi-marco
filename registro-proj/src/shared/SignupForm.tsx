@@ -32,6 +32,9 @@ import {
   type FormAll,
 } from "../models/FormAll";
 import type { LoginUser } from "../models/LoginUser";
+import { Bounce, toast } from "react-toastify";
+
+import { popupAlert } from "./staticData";
 
 type SignupFormProps = {
   //onSubmit: React.FormEventHandler<HTMLFormElement>; // anche questo indagare differenze  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
@@ -58,6 +61,9 @@ export default function SignupForm({
   const [showPw2, setShowPw2] = useState<boolean>(false);
   const [showOldPw, setShowOldPw] = useState<boolean>(false);
 
+
+   
+
   // inizializziamo formData con l incomingUser quando serve senno vuoto o come serve. serve anche per quando c'è cambiamento senza smontare visualizza<-> modifica in profilo
   useEffect(() => {
     if (!incomingUser) return; // in signup e login non c'è incoming e smette subito
@@ -71,6 +77,13 @@ export default function SignupForm({
       setFormData({});
     }
   }, [formSettings, incomingUser]);
+
+  useEffect(() => {
+    if (formMessage) {
+      
+      popupAlert(formMessage,"rosso");
+    }
+  }, [formMessage]);
 
   const handleSubmit = () => {
 
@@ -210,7 +223,7 @@ export default function SignupForm({
             alignItems: "center",
           }} /*allinea tutti i figli di questoi stack */
         >
-          {formMessage && <Alert severity="error">{formMessage}</Alert>}
+          
 
           {formSettings.visible.includes("username") && (
             <TextField
