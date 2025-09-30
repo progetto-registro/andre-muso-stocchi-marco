@@ -1,16 +1,21 @@
+
+
+// versione prima di cambiare le cose asincrone con metodo runWithLoading (del ctx per la rotella
+
+
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { orderBy } from "lodash";
 import { Alert, Box, Container } from "@mui/material";
 
-import TableRegister from "./TableRegister";
-import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
-import type { Lezione } from "../../models/Lezione";
-import type { Studente } from "../../models/Studente";
-import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
+import TableRegister from "./../TableRegister";
+import type { ClassRegisterMode } from "../../../models/ClassRegisterMode";
+import type { Lezione } from "../../../models/Lezione";
+import type { Studente } from "../../../models/Studente";
+import { navigateLandingPageIfNotAuth } from "../../../shared/staticData";
 
-import { useLoading } from "../../shared/loading/hooks";
+import { useLoading } from "../../../shared/loading/hooks";
 
 // mappa status code con messaggio (verificare che questo mapping abbia senso e sia usato bene, e che sia completo)
 function mapErrorMessage(err: unknown): string {
@@ -30,8 +35,9 @@ function mapErrorMessage(err: unknown): string {
 export default function ClassRegister() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {runWithLoading} = useLoading();  // disponibili per destruttur anche prop in value del context foornite da useLoading : , show, hide, setMessage; per fare cosette proprio manualmente
+ // const {runWithLoading, show, hide, setMessage} = useLoading();
 
+ const  [loading ,setLoading] =useState()
   const [lezioni, setLezioni] = useState<Lezione[]>([]);
   const [studenti, setStudenti] = useState<Studente[]>([]);
   const [reloadTag, setReloadTag] = useState<boolean>(false); //ogni volta che lo cambiamo riparte lo useEffect che fa la get degli studenti e delle lezioni.
@@ -52,33 +58,31 @@ export default function ClassRegister() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
- useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    (async () => {
+      //setLoading(true);
+      setErrorMessage(null);
+      try {
+        // Lezioni
+        const lezRes = await axios.get<Lezione[]>("/api/lezioni");
+        setLezioni(lezRes.data ?? []);
 
-  void runWithLoading(async () => {
-    setErrorMessage(null);
-
-    try {
-      const [lezRes, studRes] = await Promise.all([  // le due promise diventano un oggetto promise che restituirà gli oggetti di entrambe
-        axios.get<Lezione[]>("/api/lezioni"),
-        axios.get<Studente[]>("/api/studenti").catch(() => ({ data: [] as Studente[] })),
-      ]);
-
-      if (cancelled) return;
-      setLezioni(lezRes.data ?? []);
-      setStudenti(studRes.data ?? []);
-    } catch (err) {
-      if (cancelled) return;
-      setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err, navigate);
-    }
-  }, "Carico registro…");
-
-  return () => {
-    cancelled = true;
-  };
-}, [reloadTag, runWithLoading, navigate]); // runWithLoad in System (context doppio) è useCallBack solo su hide e show quindi in ppratica useCallBack non cambia mai (ref di dunz show e hide usecallback []), però se mai cmabiassimo .. eslint felice perchè "usi runWithLoading => la metti in deps.. ma non serve"
-// idem per navigate. ref non cambia ai render (useNavigate e suo provider ci fornisocno stabile), ma visto che la usiamo la mettiamo. come se non ci fosse.
+        // Studenti
+        try {
+          const studRes = await axios.get<Studente[]>("/api/studenti");
+          setStudenti(studRes.data ?? []);
+        } catch {
+          // se non riesce a caricare gli studenti, mette vuoto (magari gestire meglio)
+          setStudenti([]);
+        }
+      } catch (err) {
+        setErrorMessage(mapErrorMessage(err));
+        navigateLandingPageIfNotAuth(err,navigate);
+      } finally {
+        //setLoading(false);
+      }
+    })();
+  }, [reloadTag]);
 
   // parsa il path quando cambia e imposta mode e se siamo in edit l id che ricava dal path
   useEffect(() => {
@@ -166,34 +170,41 @@ export default function ClassRegister() {
 
   // l HANDLER del figlio per SALVARE una NEW  o una EDIT
   const onSaveLesson = async (payload: {
-  id?: number;
-  dataLezione: string;
-  studenti: { cf: string; ore: number }[];
-}) => {
-  setErrorMessage(null);
+    id?: number;
+    dataLezione: string;
+    studenti: { cf: string; ore: number }[];
+  }) => {
+    setErrorMessage(null);
 
-  try {
-    await runWithLoading(async () => {
+    try {
       if (payload.id != null) {
-        // EDIT
+        // EDIT => POST /api/lezioni/modifica
         await axios.post("/api/lezioni/modifica", {
           id: payload.id,
           dataLezione: payload.dataLezione,
           studenti: payload.studenti,
         });
 
-        setLezioni(prev => {
-          const i = prev.findIndex(l => l.id === payload.id);
+        // se andata bene con modifica/new aggiorniamo quelle locali
+        setLezioni((prev) => {
+          const i = prev.findIndex((l) => l.id === payload.id);
           if (i < 0) return prev;
+          const updated = {
+            ...prev[i],
+            dataLezione: payload.dataLezione,
+            studenti: payload.studenti,
+          };
           const copy = [...prev];
-          copy[i] = { ...prev[i], dataLezione: payload.dataLezione, studenti: payload.studenti };
+          copy[i] = updated;
           return copy;
         });
 
-        setFocusLessonId(payload.id);
+        // dopo modifica/new quella che era in modifica/new rimane aperta in view
+        setFocusLessonId(payload.id); // penso sia ridondante
         navigate("/class-register", { state: { focusId: payload.id } });
       } else {
-        // NEW
+        // NEW => PUT /api/lezioni/nuova
+        // BErestituisce 200; controllare se ritorna creata senno rifare la get (penso la ritorni, guardarci)
         const res = await axios.put<Lezione | undefined>("/api/lezioni/nuova", {
           dataLezione: payload.dataLezione,
           studenti: payload.studenti,
@@ -201,22 +212,23 @@ export default function ClassRegister() {
 
         if (res.data && res.data.id != null) {
           const created = res.data;
-          setLezioni(prev => [...prev, created]);
+          setLezioni((prev) => [...prev, created]);
           setFocusLessonId(created.id);
           navigate("/class-register", { state: { focusId: created.id } });
         } else {
-          // fallback: refetch elenco
+          // se non torna l’oggetto, refetch e si torna a view
           const lezRes = await axios.get<Lezione[]>("/api/lezioni");
           setLezioni(lezRes.data ?? []);
+
           navigate("/class-register");
         }
       }
-    }, payload.id != null ? "Aggiorno lezione…" : "Creo lezione…");
-  } catch (err) {
-    setErrorMessage(mapErrorMessage(err));
-    navigateLandingPageIfNotAuth(err, navigate);
-  }
-};
+    } catch (err) {
+      setErrorMessage(mapErrorMessage(err));
+      navigateLandingPageIfNotAuth(err,navigate);
+      // non navighiamo da nessuna parte (es. edit rimani in edit e puoi correggere)
+    }
+  };
 
   // DELETE LEZIONE
   const onDeleteLesson = async (id: number) => {

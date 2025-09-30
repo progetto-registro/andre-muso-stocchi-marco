@@ -10,7 +10,11 @@ import {
   signupFormSettings,
 } from "../../models/FormSettings";
 
-export default function SignupPage(props: any) {
+type SignupPageProps ={
+  onLogin: (user: User)=> void;
+}
+
+export default function SignupPage({onLogin}: SignupPageProps) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
   const [formMessage, setFormMessage] = useState<string>(""); // Con validazione nativa con Box type form sicuramente c erano modi migliori.. messaggio generico in basso potremmo differenziare a seconda del campo però ci sarebbe da pensarci perchè isFormComplete al momento non penso possa returnare stringa
   const [submitting, setSubmitting] = useState<boolean>(false); //così  uno non può spammare summing durante controllo fecth perchè si disabilita bottone
@@ -45,7 +49,7 @@ export default function SignupPage(props: any) {
       .put("/api/auth/signup", formData)
       .then(function (response) {
         console.log(response);
-        props.onLogin(formData);
+        onLogin(formData);
         setSubmitting(false);
         navigate("/home", { replace: true }); //così dopo che uno si registra se fa indietro torna a home e non a signup
       })

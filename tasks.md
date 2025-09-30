@@ -16,6 +16,7 @@
 
 # ANDRE
 
+- [ ] 🔴 sotto signup navigate login e sotto login navigate signnup
 - [ ] 🔴 mui per la rotellina
 - [ ] tutte le volte che ricevi un 401 non auth devi andare su pagina login
 - [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
