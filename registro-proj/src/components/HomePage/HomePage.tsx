@@ -1,4 +1,4 @@
-import { navItems } from "../../shared/staticData";
+import { navItems } from "../../shared/utils";
 
 export default function HomePage() {
   return <></>;

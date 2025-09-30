@@ -1,7 +1,4 @@
-
-
 // versione prima di cambiare le cose asincrone con metodo runWithLoading (del ctx per la rotella
-
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -13,7 +10,7 @@ import TableRegister from "./../TableRegister";
 import type { ClassRegisterMode } from "../../../models/ClassRegisterMode";
 import type { Lezione } from "../../../models/Lezione";
 import type { Studente } from "../../../models/Studente";
-import { navigateLandingPageIfNotAuth } from "../../../shared/staticData";
+import { navigateLandingPageIfNotAuth } from "../../../shared/utils";
 
 import { useLoading } from "../../../shared/loading/hooks";
 
@@ -35,9 +32,9 @@ function mapErrorMessage(err: unknown): string {
 export default function ClassRegister() {
   const navigate = useNavigate();
   const location = useLocation();
- // const {runWithLoading, show, hide, setMessage} = useLoading();
+  // const {runWithLoading, show, hide, setMessage} = useLoading();
 
- const  [loading ,setLoading] =useState()
+  const [loading, setLoading] = useState();
   const [lezioni, setLezioni] = useState<Lezione[]>([]);
   const [studenti, setStudenti] = useState<Studente[]>([]);
   const [reloadTag, setReloadTag] = useState<boolean>(false); //ogni volta che lo cambiamo riparte lo useEffect che fa la get degli studenti e delle lezioni.
@@ -77,7 +74,7 @@ export default function ClassRegister() {
         }
       } catch (err) {
         setErrorMessage(mapErrorMessage(err));
-        navigateLandingPageIfNotAuth(err,navigate);
+        navigateLandingPageIfNotAuth(err, navigate);
       } finally {
         //setLoading(false);
       }
@@ -151,8 +148,6 @@ export default function ClassRegister() {
     }, {} as Record<string, { nome?: string; cognome?: string }>); //  l init usato per tipizzare fiero
   }, [studenti]); // ok lo fa quando cambia studenti, ma non rerendera subito dopo perchè non va a cambiare uno stato eventuale
 
-  
-
   // gli HANDLER per figlio per cambiare mode
   const onCreate = () => {
     navigate("/class-register/new");
@@ -225,7 +220,7 @@ export default function ClassRegister() {
       }
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err,navigate);
+      navigateLandingPageIfNotAuth(err, navigate);
       // non navighiamo da nessuna parte (es. edit rimani in edit e puoi correggere)
     }
   };
@@ -243,8 +238,7 @@ export default function ClassRegister() {
       }
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err,navigate);
-
+      navigateLandingPageIfNotAuth(err, navigate);
     }
   };
 

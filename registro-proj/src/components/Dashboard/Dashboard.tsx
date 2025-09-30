@@ -2,19 +2,16 @@ import { Alert, Box, Container } from "@mui/material";
 import type { Studente } from "../../models/Studente";
 import { useEffect, useState } from "react";
 import { useLoading } from "../../shared/loading/hooks";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import EditStudent from "./EditStudent";
 
-
-import { navigateLandingPageIfNotAuth, popupAlert } from "../../shared/staticData";
-
+import { navigateLandingPageIfNotAuth, popupAlert } from "../../shared/utils";
 
 import { useNavigate } from "react-router-dom";
 import DashboardTable from "./DashboardTable";
 
 export default function Dashboard() {
-
   const navigate = useNavigate();
   const { runWithLoading } = useLoading();
 
@@ -29,52 +26,60 @@ export default function Dashboard() {
   const [mode, setMode] = useState<ClassRegisterMode>("view");
   // "/api/studenti"
   useEffect(() => {
-  let cancelled = false;
+    let cancelled = false; // se cancelled è true vuol dire che questo era il secondo useEffect di una raffica di click su refetch. quando ha iniziato ha messo a false il cancelled, che a riposo sta a true, ma se lo ritrova a true dopo un await (=> un altro useeffect l ha messo a true perchè nel frattempo ha finito)
 
-  void runWithLoading(async () => {
-    setErrorMessage(null);
-    try {
-      const res = await axios.get<Studente[]>("/api/studenti");
-      if (cancelled) return;
-      setStudenti(res.data ?? []);
-      setRefetch(false);
-    } catch (error: any) {
-      if (cancelled) return;
-      setRefetch(false);
-      setErrorMessage("");
-      if (error.response) {
-        const s = error.response.status;
-        if (s === 401) {
-          setErrorMessage("Non autorizzato.");
-          navigateLandingPageIfNotAuth(error, navigate);
-        } else if (s === 404) {
-          setErrorMessage("API non trovata.");
-        } else {
-          setErrorMessage("Errore del server. Riprova più tardi.");
+    void runWithLoading(
+      async () => {
+        setErrorMessage(null);
+        try {
+          const res = await axios.get<Studente[]>("/api/studenti");
+          if (cancelled) return;
+          setStudenti(res.data ?? []);
+          setRefetch(false);
+        } catch (error: any) {
+          if (cancelled) return;
+          setRefetch(false);
+          setErrorMessage("");
+          if (error.response) {
+            const s = error.response.status;
+            if (s === 401) {
+              setErrorMessage("Non autorizzato.");
+              navigateLandingPageIfNotAuth(error, navigate);
+            } else if (s === 404) {
+              setErrorMessage("API non trovata.");
+            } else {
+              setErrorMessage("Errore del server. Riprova più tardi.");
+            }
+          } else if (error.request) {
+            setErrorMessage(
+              "Nessuna risposta dal server. Controlla la connessione."
+            );
+          } else {
+            setErrorMessage("Errore applicativo imprevisto.");
+          }
         }
-      } else if (error.request) {
-        setErrorMessage("Nessuna risposta dal server. Controlla la connessione.");
-      } else {
-        setErrorMessage("Errore applicativo imprevisto.");
-      }
+      },
+      "Carico studenti…",
+      700,
+      true
+    );
+
+    return () => {
+      cancelled = true; // alla fine lo mettiamo a true, appunto
+    };
+  }, [refetch, runWithLoading, navigate]);
+
+  // tolto errorMessage nelle textbox : ora serve solo a dare messaggio a toast ( che è dentro popupAllert)
+  useEffect(() => {
+    if (errorMessage) {
+      popupAlert(errorMessage, "rosso");
     }
-  }, "Carico studenti…");
-
-  return () => { cancelled = true; };
-}, [refetch, runWithLoading, navigate]);
-
-    useEffect(() => {
-      if (errorMessage) {
-        
-        popupAlert(errorMessage,"rosso");
-      }
-    }, [errorMessage]);
+  }, [errorMessage]);
 
   const onCreate = () => {
     setErrorMessage("");
     setStudenteInModifica(undefined);
     setMode("edit");
-   
   };
   const onModify = (studente: Studente) => {
     setErrorMessage("");
@@ -83,19 +88,23 @@ export default function Dashboard() {
   };
   //
   const onDelete = async (studente: Studente) => {
-  setErrorMessage("");
-  try {
-    await runWithLoading(async () => {
-      await axios.delete("/api/studenti/elimina", { data: { cf: studente.cf } });
-      setStudenti(prev => prev.filter(s => s.cf !== studente.cf));
-      setMode("view");
-    }, "Elimino studente…");
-  } catch (error) {
-    console.error(error);
-    setErrorMessage("Impossibile eliminare lo studente.");
-  }
-};
-/////////////// ARRIVATO QUI !!!!!!!!!!!! !!!!!!!!!!! !!!!!!!!!!! 
+    setErrorMessage("");
+    try {
+      await runWithLoading(async () => {
+        await axios.delete("/api/studenti/elimina", {
+          data: { cf: studente.cf },
+        });
+        setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
+        setMode("view");
+      }, "Elimino studente…");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Impossibile eliminare lo studente.");
+    }
+  };
+
+  // MODIFICA O NUOVO
+
   const onSaved = async (studente: Studente) => {
     setErrorMessage("");
 
@@ -107,29 +116,46 @@ export default function Dashboard() {
     };
 
     try {
-      if (studenteInModifica) {
-        //Quando dev'essere modificato fa questo
-        await axios.post("/api/studenti/modifica", nuovoStudente);
-        setRefetch(true);
-        setStudenti((precedente) =>
-          precedente.map((s) =>
-            s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s
-          )
-        );
-      } else {
-        //Quando invece è nuovo fa questo
-        await axios.put("/api/studenti/nuovo", nuovoStudente);
-        setRefetch(true);
-        setStudenti((prev) => [...prev, nuovoStudente]);
-      }
+      await runWithLoading(
+        async () => {
+          if (studenteInModifica) {
+            await axios.post("/api/studenti/modifica", nuovoStudente); // volendo prendi la res e fai (res.data as any ).unCampoDelPayloadCheUsiTipoSuccess===false .. e poi in altri campi di res.data magari c'è info. e puoi fare throw new error e passar emessaggio contenuto dalla res o personalizzato, e poi error catchato dal catch esterno e setta errormessage => toast. ma noi non usiamo il 200 per gestire errori
 
-      setMode("view");
-      popupAlert("Modifica alla classe effetuata!","verde");
-    } catch (error: any) {
-      console.error(error);
-      setErrorMessage(
-        error.response?.data ?? "Errore nel salvataggio dello studente."
+            setRefetch(true); //🔴🟠inutile refetchare studenti tanto li aggiorni in locale con il nuovo/modificato, e BE già modificato con axios. rerender gratuito
+            setStudenti((prev) =>
+              prev.map((s) =>
+                s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s
+              )
+            );
+          } else {
+            const res = await axios.put<Studente | undefined>(
+              "/api/studenti/nuovo",
+              nuovoStudente
+            );
+
+            setRefetch(true); //🔴🟠 idem
+            setStudenti((prev) => [...prev, res.data ?? nuovoStudente]);
+          }
+
+          setMode("view");
+        },
+        studenteInModifica ? "Aggiorno studente…" : "Creo studente…" // secondo param di runWithLoading , per messaggio rotella
       );
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        // se err è AxiosError => true
+        if (err.response) {
+          // const s = err.response.status; // volendo comportamenti per stato ma non ci serve cuz be ci da stringa errore come corpo del body e noi la usiamo.
+
+          setErrorMessage(
+            err.response.data ?? "Errore applicativo imprevisto."
+          ); //.data per il body della response , quello che in postman si chiama body
+        } else if (err.request) {
+          setErrorMessage("Timeout. Nessuna risposta dal server.");
+        }
+      } else {
+        setErrorMessage("Errore applicativo imprevisto.");
+      }
     }
   };
 
@@ -168,7 +194,6 @@ export default function Dashboard() {
             py: 10,
           }}
         >
-         
           {mode !== "view" ? (
             <EditStudent
               studenteInModifica={studenteInModifica}

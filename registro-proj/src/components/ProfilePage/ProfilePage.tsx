@@ -5,12 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import SignupForm from "../../shared/SignupForm";
 import {
-  type FormSettings,
   modificaProfiloFormSettings,
-  signupFormSettings,
   visualizzaProfiloFormSettings,
 } from "../../models/FormSettings";
-import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
+import { navigateLandingPageIfNotAuth } from "../../shared/utils";
+import { useLoading } from "../../shared/loading/hooks";
 
 type ProfilePageProps = {
   loggedUser: User | undefined;
@@ -23,6 +22,9 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
   const [submitting, setSubmitting] = useState<boolean>(false); //così  uno non può spammare summing durante controllo fecth perchè si disabilita bottone
   const [view, setView] = useState<boolean>(true);
   const navigate = useNavigate();
+
+  const { runWithLoading } = useLoading();
+
   const handleSubmit = async (formData: User) => {
     if (view) {
       setView(false);
@@ -47,7 +49,7 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
               );
             } else if (s === 401) {
               setFormMessage("Non autorizzato.");
-              navigateLandingPageIfNotAuth(error,navigate);
+              navigateLandingPageIfNotAuth(error, navigate);
             } else if (s === 404) {
               setFormMessage("API non trovata.");
             } else {

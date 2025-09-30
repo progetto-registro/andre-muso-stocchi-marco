@@ -18,7 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import { navItems } from "../../shared/staticData";
+import { navItems } from "../../shared/utils";
 
 type NavbarProps = {
   onLogout: () => void; // mette a null loggeduser in app e mette a false islogged

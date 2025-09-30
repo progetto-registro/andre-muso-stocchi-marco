@@ -8,7 +8,7 @@ import TableRegister from "./TableRegister";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import type { Lezione } from "../../models/Lezione";
 import type { Studente } from "../../models/Studente";
-import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
+import { navigateLandingPageIfNotAuth } from "../../shared/utils";
 
 import { useLoading } from "../../shared/loading/hooks";
 
@@ -30,7 +30,7 @@ function mapErrorMessage(err: unknown): string {
 export default function ClassRegister() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {runWithLoading} = useLoading();  // disponibili per destruttur anche prop in value del context foornite da useLoading : , show, hide, setMessage; per fare cosette proprio manualmente
+  const { runWithLoading } = useLoading(); // disponibili per destruttur anche prop in value del context foornite da useLoading : , show, hide, setMessage; per fare cosette proprio manualmente
 
   const [lezioni, setLezioni] = useState<Lezione[]>([]);
   const [studenti, setStudenti] = useState<Studente[]>([]);
@@ -52,33 +52,36 @@ export default function ClassRegister() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
- useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-  void runWithLoading(async () => {
-    setErrorMessage(null);
+    void runWithLoading(async () => {
+      setErrorMessage(null);
 
-    try {
-      const [lezRes, studRes] = await Promise.all([  // le due promise diventano un oggetto promise che restituirà gli oggetti di entrambe
-        axios.get<Lezione[]>("/api/lezioni"),
-        axios.get<Studente[]>("/api/studenti").catch(() => ({ data: [] as Studente[] })),
-      ]);
+      try {
+        const [lezRes, studRes] = await Promise.all([
+          // le due promise diventano un oggetto promise che restituirà gli oggetti di entrambe
+          axios.get<Lezione[]>("/api/lezioni"),
+          axios
+            .get<Studente[]>("/api/studenti")
+            .catch(() => ({ data: [] as Studente[] })),
+        ]);
 
-      if (cancelled) return;
-      setLezioni(lezRes.data ?? []);
-      setStudenti(studRes.data ?? []);
-    } catch (err) {
-      if (cancelled) return;
-      setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err, navigate);
-    }
-  }, "Carico registro…");
+        if (cancelled) return;
+        setLezioni(lezRes.data ?? []);
+        setStudenti(studRes.data ?? []);
+      } catch (err) {
+        if (cancelled) return;
+        setErrorMessage(mapErrorMessage(err));
+        navigateLandingPageIfNotAuth(err, navigate);
+      }
+    }, "Carico registro…");
 
-  return () => {
-    cancelled = true;
-  };
-}, [reloadTag, runWithLoading, navigate]); // runWithLoad in System (context doppio) è useCallBack solo su hide e show quindi in ppratica useCallBack non cambia mai (ref di dunz show e hide usecallback []), però se mai cmabiassimo .. eslint felice perchè "usi runWithLoading => la metti in deps.. ma non serve"
-// idem per navigate. ref non cambia ai render (useNavigate e suo provider ci fornisocno stabile), ma visto che la usiamo la mettiamo. come se non ci fosse.
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadTag, runWithLoading, navigate]); // runWithLoad in System (context doppio) è useCallBack solo su hide e show quindi in ppratica useCallBack non cambia mai (ref di dunz show e hide usecallback []), però se mai cmabiassimo .. eslint felice perchè "usi runWithLoading => la metti in deps.. ma non serve"
+  // idem per navigate. ref non cambia ai render (useNavigate e suo provider ci fornisocno stabile), ma visto che la usiamo la mettiamo. come se non ci fosse.
 
   // parsa il path quando cambia e imposta mode e se siamo in edit l id che ricava dal path
   useEffect(() => {
@@ -147,8 +150,6 @@ export default function ClassRegister() {
     }, {} as Record<string, { nome?: string; cognome?: string }>); //  l init usato per tipizzare fiero
   }, [studenti]); // ok lo fa quando cambia studenti, ma non rerendera subito dopo perchè non va a cambiare uno stato eventuale
 
-  
-
   // gli HANDLER per figlio per cambiare mode
   const onCreate = () => {
     navigate("/class-register/new");
@@ -166,57 +167,67 @@ export default function ClassRegister() {
 
   // l HANDLER del figlio per SALVARE una NEW  o una EDIT
   const onSaveLesson = async (payload: {
-  id?: number;
-  dataLezione: string;
-  studenti: { cf: string; ore: number }[];
-}) => {
-  setErrorMessage(null);
+    id?: number;
+    dataLezione: string;
+    studenti: { cf: string; ore: number }[];
+  }) => {
+    setErrorMessage(null);
 
-  try {
-    await runWithLoading(async () => {
-      if (payload.id != null) {
-        // EDIT
-        await axios.post("/api/lezioni/modifica", {
-          id: payload.id,
-          dataLezione: payload.dataLezione,
-          studenti: payload.studenti,
-        });
+    try {
+      await runWithLoading(
+        async () => {
+          if (payload.id != null) {
+            // EDIT
+            await axios.post("/api/lezioni/modifica", {
+              id: payload.id,
+              dataLezione: payload.dataLezione,
+              studenti: payload.studenti,
+            });
 
-        setLezioni(prev => {
-          const i = prev.findIndex(l => l.id === payload.id);
-          if (i < 0) return prev;
-          const copy = [...prev];
-          copy[i] = { ...prev[i], dataLezione: payload.dataLezione, studenti: payload.studenti };
-          return copy;
-        });
+            setLezioni((prev) => {
+              const i = prev.findIndex((l) => l.id === payload.id);
+              if (i < 0) return prev;
+              const copy = [...prev];
+              copy[i] = {
+                ...prev[i],
+                dataLezione: payload.dataLezione,
+                studenti: payload.studenti,
+              };
+              return copy;
+            });
 
-        setFocusLessonId(payload.id);
-        navigate("/class-register", { state: { focusId: payload.id } });
-      } else {
-        // NEW
-        const res = await axios.put<Lezione | undefined>("/api/lezioni/nuova", {
-          dataLezione: payload.dataLezione,
-          studenti: payload.studenti,
-        });
+            setFocusLessonId(payload.id);
+            navigate("/class-register", { state: { focusId: payload.id } });
+          } else {
+            // NEW
+            const res = await axios.put<Lezione | undefined>(
+              "/api/lezioni/nuova",
+              {
+                dataLezione: payload.dataLezione,
+                studenti: payload.studenti,
+              }
+            );
 
-        if (res.data && res.data.id != null) {
-          const created = res.data;
-          setLezioni(prev => [...prev, created]);
-          setFocusLessonId(created.id);
-          navigate("/class-register", { state: { focusId: created.id } });
-        } else {
-          // fallback: refetch elenco
-          const lezRes = await axios.get<Lezione[]>("/api/lezioni");
-          setLezioni(lezRes.data ?? []);
-          navigate("/class-register");
-        }
-      }
-    }, payload.id != null ? "Aggiorno lezione…" : "Creo lezione…");
-  } catch (err) {
-    setErrorMessage(mapErrorMessage(err));
-    navigateLandingPageIfNotAuth(err, navigate);
-  }
-};
+            if (res.data && res.data.id != null) {
+              const created = res.data;
+              setLezioni((prev) => [...prev, created]);
+              setFocusLessonId(created.id);
+              navigate("/class-register", { state: { focusId: created.id } });
+            } else {
+              // fallback: refetch elenco
+              const lezRes = await axios.get<Lezione[]>("/api/lezioni");
+              setLezioni(lezRes.data ?? []);
+              navigate("/class-register");
+            }
+          }
+        },
+        payload.id != null ? "Aggiorno lezione…" : "Creo lezione…"
+      );
+    } catch (err) {
+      setErrorMessage(mapErrorMessage(err));
+      navigateLandingPageIfNotAuth(err, navigate);
+    }
+  };
 
   // DELETE LEZIONE
   const onDeleteLesson = async (id: number) => {
@@ -231,8 +242,7 @@ export default function ClassRegister() {
       }
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err,navigate);
-
+      navigateLandingPageIfNotAuth(err, navigate);
     }
   };
 

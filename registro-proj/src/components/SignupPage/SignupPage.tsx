@@ -5,28 +5,20 @@ import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 
 import SignupForm from "../../shared/SignupForm";
-import {
+import { signupFormSettings } from "../../models/FormSettings";
+import { popupAlert } from "../../shared/utils";
 
-  signupFormSettings,
-} from "../../models/FormSettings";
-import { popupAlert } from "../../shared/staticData";
+type SignupPageProps = {
+  onLogin: (user: User) => void;
+};
 
-type SignupPageProps ={
-  onLogin: (user: User)=> void;
-}
-
-export default function SignupPage({onLogin}: SignupPageProps) {
+export default function SignupPage({ onLogin }: SignupPageProps) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
   const [formMessage, setFormMessage] = useState<string>(""); // Con validazione nativa con Box type form sicuramente c erano modi migliori.. messaggio generico in basso potremmo differenziare a seconda del campo però ci sarebbe da pensarci perchè isFormComplete al momento non penso possa returnare stringa
   const [submitting, setSubmitting] = useState<boolean>(false); //così  uno non può spammare summing durante controllo fecth perchè si disabilita bottone
   // stati per password
 
   const navigate = useNavigate(); //dopo submit si va alla home
-
-
-   
-
-
 
   const handleSubmit = async (formData: User) => {
     setFormMessage("");
@@ -49,19 +41,13 @@ export default function SignupPage({onLogin}: SignupPageProps) {
             setFormMessage(
               "Utente già esistente (CF duplicato) o dati non validi."
             );
-           
           } else if (s === 401) {
             setFormMessage("Non autorizzato.");
           } else if (s === 404) {
             setFormMessage("API non trovata.");
-           
-            
           } else {
             setFormMessage("Errore del server. Riprova più tardi.");
-             
-            
           }
-         
         } else if (error.request) {
           setFormMessage(
             "Nessuna risposta dal server. Controlla la connessione."
@@ -69,16 +55,11 @@ export default function SignupPage({onLogin}: SignupPageProps) {
         } else {
           setFormMessage("Errore applicativo imprevisto.");
         }
-        
-        
-       
-        
       });
   };
 
   // da cambiare molto quando guardiamo bene  questione degli stili temi etc con mui. per ora così che almeno c'è
   return (
-    
     <Box
       sx={{
         position: "fixed", // provandoi a togliere le scrollbar
@@ -91,19 +72,16 @@ export default function SignupPage({onLogin}: SignupPageProps) {
         placeItems: "center",
         bgcolor: "#6a7780ff",
         overflow: "hidden",
-        overflowY: "hidden"
+        overflowY: "hidden",
       }}
     >
       {/* CARD */}
       <Container
         maxWidth="sm" /*Container: un comp comodo per gestire responsive dei suoi figli in una bottta sola */
-
         sx={{
-            transform:"scale(0.67)",
-            transformOrigin:"center center"
+          transform: "scale(0.67)",
+          transformOrigin: "center center",
         }}
-        
-       
       >
         <SignupForm
           formSettings={signupFormSettings}

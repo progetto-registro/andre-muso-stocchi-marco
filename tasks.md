@@ -1,29 +1,31 @@
 # MARCO
 
-- [ ] fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
-- [ ] 🟠finire dashboard
+- [ ] 🔴
+- [x] fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
+- [x] finire dashboard
 
 # MUSO
 
-- [ ] 🔴fare **Home** e comp card personalizzato da utilizzare nella home e magari altrove
+- [ ] 🔴 esattamente dopo ogni get/post/put/delete axios metterci un
+- [x] fare **Home** e comp card personalizzato da utilizzare nella home e magari altrove
 - [x] **landing page** ( accedi o registrati) ricorda di usare **mui** di google .
 
 # STOCCHI
 
+- [ ] 🔴 debuggare di brutto l app usandola e segnarsi errori
 - [x] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
 - [x] iniziare **class-register** (>tableregister > row)
 - [ ] 🔴 sostituire **error message** con **react tostify** e **AGGIUNGERE MESSAGGI NON ERROR**
 
 # ANDRE
 
-- [ ] 🔴 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti
-- [ ] 🔴 sotto signup navigate login e sotto login navigate signnup
-- [ ] 🔴 mui per la rotellina
-- [ ] tutte le volte che ricevi un 401 non auth devi andare su pagina login
+- [ ] capire meglio quando ci va l'async dvanti alle funz e perchè funz tue che dentro usano il .then o il setTimeOut non le usano
+- [ ] 🔴 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti (gestire data anche in dashboard)
+- [ ] 🔴 sotto signup navigate login e sotto login navigate sign up
+- [ ] 🔴 (anche per navigate, non solo fetch )mui per la rotellina
+- [ ] 🔴 tutte le volte che ricevi un 401 non auth devi andare su pagina login
 - [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
-- [ ] 🟠trasform per vedere tutto form ? brutto . solo su signuppage ? no
-- [ ] 🟢(vediamo) theme ? themeProvider nel main e non a muzzo
-- [ ] uniformare comp loggati : tutti ricevono loggedUser (non .name !) e se serve anche callback per sloggare. guardare **LogCheck** (=> class Register?)
+- [ ] 🟠 trasform per vedere tutto form ? brutto . solo su signuppage ? no
 - [ ] 🟡 definire type Props di tutti comp (parti da singup page)
 - [ ] 🟡 provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
 - [ ] (non lo faremo) ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
@@ -32,10 +34,10 @@
 - [x] settare **API**
 - [x] fare **modifica utente == profilo** riutilizzando SignupForm , leggi sotto
 - [x] adattare **class-register** anche per edit e new
-- [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt. **User loggato** da fare alla peggio con props App=> loggedComp e **callback** su signup e login
-- [ ] approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
+- [x] valutare l utilizzo di **Context** => usato per rotellina
+- [ ] (non avremo tempo) approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
 - [ ] 🟠 controllare endpoint e funziona,mento con be
-- [x] 🟢 NON SERVIVA USERLOGGED: nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
+- [x] 🟢 GESTIRE USERLOGGED (fare un provider magari era meglio ma amen: unico " problema" in modifica profilo che rerendera tutto ; le altre volte no prob)
 - [ ] 🔴 togliere callback di userlogged 🟢o mantenerlo, fare un context per lui .. e usarlo magari per ricordarsi login per volta dopo non so. se proprio troppo tempo
 - [x] La data non fuzniona, fare context (User, isLogged, etc)
 
@@ -72,4 +74,45 @@ fare oggettone tornato da funzione in globalstaticdata che returna un **OGGETTO*
 - typography di paper "Registrati" title
 - onsubmit devi dargliela giù e deve attivare handlesubmit. da sopra bisogna mandare giu formMessage
 - onchange ( deve mandare React.ChangeEvent<HTMLInputElement> | SelectChangeEvent<string>) e il form deve anche prendere formData. fare anche onDateChange perchè l onChange non gestisce anche la data
-- spostare gli statiu legati a showpassword in formcomp
+- spostare gli statiu legati a showpassword in formcompù
+
+# AXIOS:
+
+**Con Axios hai due tipi di errori:**
+
+1. **Trasporto/HTTP** → Axios lancia se lo status non è 2xx. L’oggetto errore ha:
+
+- error.response (status, data) → il server ha risposto con 4xx/5xx (controllare codice per codice)
+
+- error.request → nessuna risposta (timeout, rete down, CORS) (controllarla come fosse un boolean, se è true c'è stato)
+
+- else → errore di configurazione/JS (fallback per errori codice qualsiasi)
+
+2. **Dominio/app** → QUANDO BE USA 200 PER MANDARE ERRORI: il server risponde 2xx ma nel data c’è un errore (es. {success:false, message:"..."}); non scatta il catch: devi controllarlo tu dopo il await.
+
+```tsx
+try {
+  const res = await axios.post<Payload>("/endpoint", body);
+
+  // (opzionale) Controllo "dominio" se la tua API usa 200 anche sugli errori:
+  if (res.data && (res.data as any).success === false) {
+    throw new Error((res.data as any).message ?? "Errore applicativo");
+  }
+
+  // ... success ...
+} catch (err) {
+  if (axios.isAxiosError(err)) {
+    if (err.response) {
+      const status = err.response.status;
+      const payload = err.response.data; // messaggi dal server
+      // mapping per status specifici
+    } else if (err.request) {
+      // nessuna risposta dal server
+    } else {
+      // errore di configurazione / JS
+    }
+  } else {
+    // errore non-Axios (throw manuale, Error custom, ecc.)
+  }
+}
+```

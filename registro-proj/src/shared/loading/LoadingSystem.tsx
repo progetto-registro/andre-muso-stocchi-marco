@@ -1,19 +1,19 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { LoadingStateContext, LoadingActionsContext } from "./contexts";
+import { sleep } from "./../utils";
 import GlobalLoading from "./GlobalLoading";
-
 
 // n.b : qui non siamo in un consumer del provider, a cui basta importare useContext e il tipo del context e ottenere value, o importare un hook custom centralizzato che fa la steessa cosa (useLoading e useLoadingState)
 // qui non ci serve value ovviamente, "siamo noi value" ! è proprio qui LoadingSystem che tiene (e volendo gestisce le logiche) dei due value ( actions e state) e che li rende accessibili ai consumer di ciascun provider mettendoli nel value
 // QUI CI SERVONO GLI OGGETTI CONTEXT ! per poterne usare prop comp .Provider . questo comp tipo un hub di 2 provider
 
-
 const DEFAULT_MSG = "Caricamento…";
 
-export function LoadingSystem({ children }: { children: ReactNode }) { //prendere children come prop speciale (i comp annidati che verranno usati al suo interno) e tipizzarlo come ReactNode permette di dire a react che comp corrente accetta appunto contenuto JSX annidato, e poi nel render possiamo decidere dove va a finire, dove inserirlo.
-  
-  // in questo comp ovviamente state e actions comunicano tra di loro, 
-  // ma 
+export function LoadingSystem({ children }: { children: ReactNode }) {
+  //prendere children come prop speciale (i comp annidati che verranno usati al suo interno) e tipizzarlo come ReactNode permette di dire a react che comp corrente accetta appunto contenuto JSX annidato, e poi nel render possiamo decidere dove va a finire, dove inserirlo.
+
+  // in questo comp ovviamente state e actions comunicano tra di loro,
+  // ma
 
   const [isOpen, setOpen] = useState(false);
   const [message, _setMessage] = useState(DEFAULT_MSG);
@@ -29,22 +29,31 @@ export function LoadingSystem({ children }: { children: ReactNode }) { //prender
   const setMessage = useCallback((msg?: string) => {
     _setMessage(msg === undefined ? DEFAULT_MSG : msg);
   }, []);
-  const runWithLoading = useCallback(async <T,>(task: () => Promise<T>, msg?: string) => {
-    show(msg);
-    try {
-      return await task();
-    } finally {
-      hide();
-    }
-  }, [show, hide]);
 
- 
-  const actions = useMemo(
-    () => ({ show, hide, setMessage, runWithLoading }),
-    [show, hide, setMessage, runWithLoading]
+  const runWithLoading = useCallback(
+    async <T,>(
+      task: () => Promise<T>,
+      msg?: string,
+      ms?: number,
+      wait?: boolean
+    ) => {
+      show(msg);
+      if (wait === undefined) wait = true; // CAMBIARE SE VUOI CHE DI DEFAULT NON ASPETTI !
+      if (ms && wait) await sleep(ms);
+      try {
+        return await task();
+      } finally {
+        hide();
+      }
+    },
+    [show, hide]
   );
 
-  
+  const actions = useMemo(
+    () => ({ show, hide, setMessage, runWithLoading, sleep }),
+    [show, hide, setMessage, runWithLoading, sleep]
+  );
+
   const state = useMemo(() => ({ isOpen, message }), [isOpen, message]);
 
   return (
@@ -59,7 +68,6 @@ export function LoadingSystem({ children }: { children: ReactNode }) { //prender
     </LoadingActionsContext.Provider>
   );
 }
-
 
 /*
 - PRIMA DI SPLITTARE CONTEXT: quando cambia isOpen/message (stati) =>value context cabiava quindi anche per consumer di solo actions (che però lo erano di tutto)

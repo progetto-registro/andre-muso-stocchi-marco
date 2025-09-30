@@ -33,8 +33,7 @@ import {
 } from "../models/FormAll";
 import type { LoginUser } from "../models/LoginUser";
 
-
-import { popupAlert } from "./staticData";
+import { popupAlert } from "./utils";
 
 type SignupFormProps = {
   //onSubmit: React.FormEventHandler<HTMLFormElement>; // anche questo indagare differenze  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
@@ -61,9 +60,6 @@ export default function SignupForm({
   const [showPw2, setShowPw2] = useState<boolean>(false);
   const [showOldPw, setShowOldPw] = useState<boolean>(false);
 
-
-   
-
   // inizializziamo formData con l incomingUser quando serve senno vuoto o come serve. serve anche per quando c'è cambiamento senza smontare visualizza<-> modifica in profilo
   useEffect(() => {
     if (!incomingUser) return; // in signup e login non c'è incoming e smette subito
@@ -80,13 +76,11 @@ export default function SignupForm({
 
   useEffect(() => {
     if (formMessage) {
-      
-      popupAlert(formMessage,"rosso");
+      popupAlert(formMessage, "rosso");
     }
   }, [formMessage]);
 
   const handleSubmit = () => {
-
     const validationRes = validateByMode(formSettings.mode, formData);
     if (!validationRes.ok) {
       //c'è modo piu furbo per escludere tipo ?
@@ -211,9 +205,8 @@ export default function SignupForm({
         onSubmit={(e) => {
           // appoggia mouse su e per vedere il tipo se volevi passarlo ti serviva in handleSubmit
           e.preventDefault(); // evita il submit nativo sempre, o almeno nel ramo 'visualizza'
-          
-            handleSubmit();
-      
+
+          handleSubmit();
         }}
       >
         {/*forse per passaggio modifica<-> visualizza un onToggle apposta ci stava invece di usare handleSubmit=>onSubmit */}
@@ -223,8 +216,6 @@ export default function SignupForm({
             alignItems: "center",
           }} /*allinea tutti i figli di questoi stack */
         >
-          
-
           {formSettings.visible.includes("username") && (
             <TextField
               sx={{ bgcolor: "#c0dcf5ff", borderRadius: "6px" }}
@@ -285,7 +276,7 @@ export default function SignupForm({
               onChange={(newValue: Dayjs | null) => {
                 setFormData((prev) => ({
                   ...prev,
-                  dataNascita: newValue ?? undefined,  //🔴come fare che se metto chiave sbagliata mi segna rosso ??
+                  dataNascita: newValue ?? undefined, //🔴come fare che se metto chiave sbagliata mi segna rosso ??
                 }));
               }}
               slotProps={{

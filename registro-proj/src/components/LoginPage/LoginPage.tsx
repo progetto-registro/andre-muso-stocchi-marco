@@ -1,12 +1,18 @@
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios, { type AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 import type { LoginUser } from "../../models/LoginUser";
 import SignupForm from "../../shared/SignupForm";
 import { loginFormSettings } from "../../models/FormSettings";
+import { useLoading } from "../../shared/loading/hooks";
+import type { User } from "../../models/User";
 
-export default function LoginPage(props: any) {
+type LoginPageProps = {
+  onLogin: (user: User) => void;
+};
+
+export default function LoginPage({ onLogin }: LoginPageProps) {
   //serve per scrivere l'eventuale messaggio di errore direttamente nella pagina
   const [formMessage, setFormMessage] = useState<string>("");
   //serve per gestire l'invio di tutti i dati del form
@@ -14,35 +20,46 @@ export default function LoginPage(props: any) {
 
   //serve a gestire facilmente la navigazione tra le pagine
   const navigate = useNavigate();
+  const { runWithLoading } = useLoading();
 
   const handleSubmit = async (formData: LoginUser) => {
     setFormMessage("");
-    axios
-      .post("/api/auth/login", formData)
-      .then(function response() {
-        console.log(response);
-        props.onLogin(formData);
-        setSubmitting(false);
-        navigate("/home", { replace: true });
-      })
-      .catch((error: AxiosError<any>) => {
-
-        setSubmitting(false);
-
-        console.error(error);
-        if (error.response) {
-          const errorStatus = error.response.status;
-          if (errorStatus === 400) setFormMessage("Dati mancanti");
-          else if (errorStatus === 404) setFormMessage("Dati errati");
-          else setFormMessage("Errore del server. Riprova più tardi.");
-        } else if (error.request) {
-          setFormMessage(
-            "Nessuna risposta dal server. Controlla la connessione."
+    await runWithLoading(
+      async () => {
+        try {
+          const res = await axios.post<LoginUser, AxiosResponse<User>>(
+            "/api/auth/login",
+            formData
           );
-        } else {
-          setFormMessage("Errore applicativo imprevisto.");
+          console.log(res);
+          setSubmitting(false);
+          if (res.data) {
+            //molto prob non serve perche se !res.data => eccezione
+
+            onLogin(res.data);
+            navigate("/home", { replace: true }); //🔴 rotella deve cambiare scritta mentre è on , sennò diamo direttamente login
+          }
+        } catch (err) {
+          setSubmitting(false);
+          if (axios.isAxiosError(err)) {
+            // se err è AxiosError => true
+            if (err.response) {
+              // const s = err.response.status; // volendo comportamenti per stato ma non ci serve cuz be ci da stringa errore come corpo del body e noi la usiamo.
+              setFormMessage(
+                err.response.data ?? "Errore applicativo imprevisto."
+              ); //.data per il body della response , quello che in postman si chiama body
+            } else if (err.request) {
+              setFormMessage("Timeout. Nessuna risposta dal server.");
+            }
+          } else {
+            setFormMessage("Errore applicativo imprevisto.");
+          }
         }
-      });
+      },
+      "Loggin in..",
+      750,
+      true
+    ); //true non serve, è default
   };
 
   return (
@@ -68,7 +85,7 @@ export default function LoginPage(props: any) {
             formSettings={loginFormSettings}
             formMessage={formMessage}
             submitting={submitting}
-            onSubmit={handleSubmit as any}
+            onSubmit={handleSubmit}
             onSubmitting={() => setSubmitting(true)}
           />
         </Container>
