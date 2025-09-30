@@ -20,7 +20,7 @@ export default function AuthCard() {
     >
       <CardContent>
         <Typography variant="h5" gutterBottom fontWeight="bold">
-          Benvenuto!
+        Benvenuto!
         </Typography>
 
         <Stack spacing={2} mt={2}>
