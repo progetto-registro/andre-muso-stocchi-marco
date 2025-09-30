@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import type { Studente } from "../../models/Studente";
 
-type DashboardRegisterProps = {
+type DashboardTableProps = {
   studenti: Studente[] | undefined;
   onModify: (studente: Studente) => void;
   onCreate: () => void;
@@ -18,12 +18,12 @@ type DashboardRegisterProps = {
   onDelete: (studene: Studente) => void;
 };
 
-export default function DashboardRegister({
+export default function DashboardTable({
   studenti,
   onModify,
   onDelete,
   onCreate,
-}: DashboardRegisterProps) {
+}: DashboardTableProps) {
   if (!studenti) {
     return <div>Caricamento...</div>;
   }
@@ -47,6 +47,7 @@ export default function DashboardRegister({
             </TableHead>
             <TableBody>
               {[...(studenti ?? [])]
+                .sort((a, b) => a.cognome.localeCompare(b.cognome))
                 .map((studente) => (
                   <TableRow key={studente.cf}>
                     <TableCell />
