@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import EditStudent from "./EditStudent";
-import DashboardRegister from "./DashboardTable";
 import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
 import { useNavigate } from "react-router-dom";
 import DashboardTable from "./DashboardTable";
@@ -94,7 +93,9 @@ export default function Dashboard() {
         await axios.post(`${apiLink}/modifica`, nuovoStudente);
         setRefetch(true);
         setStudenti((precedente) =>
-          precedente.map((s) => (s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s))
+          precedente.map((s) =>
+            s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s
+          )
         );
       } else {
         //Quando invece è nuovo fa questo
@@ -134,17 +135,17 @@ export default function Dashboard() {
         }}
       >
         <Container
-          maxWidth="sm"
+          maxWidth="md"
           sx={{
             fontFamily: "Roboto",
-            position: "fixed",
-            top: 0,
-            left: 0,
             height: "100vh",
             width: "100vw",
             display: "flex",
             placeItems: "center",
             backgroundColor: "lightblue",
+            flexDirection: "column",
+            overflow: "auto",
+            py: 10,
           }}
         >
           {errorMessage && (
