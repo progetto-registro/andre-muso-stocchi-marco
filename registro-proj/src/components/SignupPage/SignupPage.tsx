@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import type { User } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
+import { Bounce, toast, ToastContainer } from 'react-toastify';
 import SignupForm from "../../shared/SignupForm";
 import {
   type FormSettings,
@@ -16,6 +17,26 @@ export default function SignupPage(props: any) {
   // stati per password
 
   const navigate = useNavigate(); //dopo submit si va alla home
+
+
+    const  ToastErrore = (text:string) => 
+    {
+        console.log(text)
+           toast.error(text, {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+            transition: Bounce,
+            });
+          
+    };
+
+
 
   const handleSubmit = async (formData: User) => {
     setFormMessage("");
@@ -37,13 +58,16 @@ export default function SignupPage(props: any) {
             setFormMessage(
               "Utente già esistente (CF duplicato) o dati non validi."
             );
+           
           } else if (s === 401) {
             setFormMessage("Non autorizzato.");
           } else if (s === 404) {
             setFormMessage("API non trovata.");
+            
           } else {
             setFormMessage("Errore del server. Riprova più tardi.");
           }
+         
         } else if (error.request) {
           setFormMessage(
             "Nessuna risposta dal server. Controlla la connessione."
@@ -51,11 +75,16 @@ export default function SignupPage(props: any) {
         } else {
           setFormMessage("Errore applicativo imprevisto.");
         }
+        
+        
+       
+        
       });
   };
 
   // da cambiare molto quando guardiamo bene  questione degli stili temi etc con mui. per ora così che almeno c'è
   return (
+    
     <Box
       sx={{
         position: "fixed", // provandoi a togliere le scrollbar
