@@ -18,6 +18,8 @@ type DashboardTableProps = {
   onDelete: (studene: Studente) => void;
 };
 
+
+
 export default function DashboardTable({
   studenti,
   onModify,
@@ -72,4 +74,6 @@ export default function DashboardTable({
       </Box>
     </>
   );
+
+  
 }

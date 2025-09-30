@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import type { User } from "../../models/User";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ import {
 
   signupFormSettings,
 } from "../../models/FormSettings";
+import { popupAlert } from "../../shared/staticData";
 
 export default function SignupPage(props: any) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
@@ -32,6 +33,7 @@ export default function SignupPage(props: any) {
         console.log(response);
         props.onLogin(formData);
         setSubmitting(false);
+        popupAlert("Registrazione Avvenuta con successo!", "verde");
         navigate("/home", { replace: true }); //così dopo che uno si registra se fa indietro torna a home e non a signup
       })
       .catch((error: AxiosError<any>) => {

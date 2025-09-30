@@ -5,7 +5,7 @@ import axios from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import EditStudent from "./EditStudent";
 import DashboardRegister from "./DashboardTable";
-import { navigateLandingPageIfNotAuth } from "../../shared/staticData";
+import { navigateLandingPageIfNotAuth, popupAlert } from "../../shared/staticData";
 import { useNavigate } from "react-router-dom";
 import DashboardTable from "./DashboardTable";
 
@@ -54,6 +54,13 @@ export default function Dashboard() {
         }
       });
   }, [refetch]);
+
+    useEffect(() => {
+      if (errorMessage) {
+        
+        popupAlert(errorMessage,"rosso");
+      }
+    }, [errorMessage]);
 
   const onCreate = () => {
     setErrorMessage("");
@@ -147,11 +154,7 @@ export default function Dashboard() {
             backgroundColor: "lightblue",
           }}
         >
-          {errorMessage && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {errorMessage}
-            </Alert>
-          )}
+         
           {mode !== "view" ? (
             <EditStudent
               studenteInModifica={studenteInModifica}
