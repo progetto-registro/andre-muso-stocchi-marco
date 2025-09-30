@@ -19,12 +19,12 @@
 
 # ANDRE
 
-- [ ] capire meglio quando ci va l'async dvanti alle funz e perchè funz tue che dentro usano il .then o il setTimeOut non le usano
+- [ ] 📚📚📚🔎🔎🔎 capire meglio await async (void se non ti serve await anche se async ? perch?) .. e anche in relazione a runWithLoading.. e a then , setTimeout, etc
 - [ ] 🔴 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti (gestire data anche in dashboard)
 - [ ] 🔴 sotto signup navigate login e sotto login navigate sign up
-- [ ] 🔴 (anche per navigate, non solo fetch )mui per la rotellina
+- [ ] 🔴 📒📒📒mui per la rotellina (MANCA PROFILE E LE NAVIGATE. GIà CHE CI SEI FAI I REDIRECT NON AUTH PER 401)
 - [ ] 🔴 tutte le volte che ricevi un 401 non auth devi andare su pagina login
-- [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
+- [ ] 🟠 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
 - [ ] 🟠 trasform per vedere tutto form ? brutto . solo su signuppage ? no
 - [ ] 🟡 definire type Props di tutti comp (parti da singup page)
 - [ ] 🟡 provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
