@@ -74,6 +74,7 @@ export default function Dashboard() {
     setErrorMessage("");
     setStudenteInModifica(undefined);
     setMode("edit");
+   
   };
   const onModify = (studente: Studente) => {
     setErrorMessage("");
@@ -123,6 +124,7 @@ export default function Dashboard() {
       }
 
       setMode("view");
+      popupAlert("Modifica alla classe effetuata!","verde");
     } catch (error: any) {
       console.error(error);
       setErrorMessage(
