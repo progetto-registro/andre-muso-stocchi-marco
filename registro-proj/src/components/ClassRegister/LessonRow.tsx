@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState, forwardRef } from "react";
-import sortBy from "lodash/sortBy";
 import type { PresenzaStudente } from "../../models/Studente";
 import type { LezioneCreate } from "../../models/Lezione";
 import type { Lezione } from "../../models/Lezione";

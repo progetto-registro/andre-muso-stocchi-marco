@@ -27,7 +27,7 @@ export default function App() {
     return (
       <>
         <Navbar
-          username={loggedUser?.nome ?? undefined}
+          username={loggedUser?.nome ?? undefined} // se siamo dentro senza user male
           onLogout={() => {
             setIsLogged((prev) => !prev);
             setLoggedUser(undefined);
@@ -59,7 +59,7 @@ export default function App() {
         path="/signup"
         element={
           <SignupPage
-            onSignup={(userIn: User) => {
+            onLogin={(userIn: User) => {
               setIsLogged(true);
               setLoggedUser(userIn);
             }}

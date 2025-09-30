@@ -3,13 +3,19 @@ import axios, { AxiosError } from "axios";
 import type { User } from "../../models/User";
 import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
+
 import SignupForm from "../../shared/SignupForm";
 import {
-  type FormSettings,
+
   signupFormSettings,
 } from "../../models/FormSettings";
+import { popupAlert } from "../../shared/staticData";
 
-export default function SignupPage(props: any) {
+type SignupPageProps ={
+  onLogin: (user: User)=> void;
+}
+
+export default function SignupPage({onLogin}: SignupPageProps) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
   const [formMessage, setFormMessage] = useState<string>(""); // Con validazione nativa con Box type form sicuramente c erano modi migliori.. messaggio generico in basso potremmo differenziare a seconda del campo però ci sarebbe da pensarci perchè isFormComplete al momento non penso possa returnare stringa
   const [submitting, setSubmitting] = useState<boolean>(false); //così  uno non può spammare summing durante controllo fecth perchè si disabilita bottone
@@ -17,15 +23,21 @@ export default function SignupPage(props: any) {
 
   const navigate = useNavigate(); //dopo submit si va alla home
 
+
+   
+
+
+
   const handleSubmit = async (formData: User) => {
     setFormMessage("");
 
     axios
-      .post("/api/auth/signup", formData)
+      .put("/api/auth/signup", formData)
       .then(function (response) {
         console.log(response);
-        props.onLogin(formData);
+        onLogin(formData);
         setSubmitting(false);
+        popupAlert("Registrazione Avvenuta con successo!", "verde");
         navigate("/home", { replace: true }); //così dopo che uno si registra se fa indietro torna a home e non a signup
       })
       .catch((error: AxiosError<any>) => {
@@ -37,13 +49,19 @@ export default function SignupPage(props: any) {
             setFormMessage(
               "Utente già esistente (CF duplicato) o dati non validi."
             );
+           
           } else if (s === 401) {
             setFormMessage("Non autorizzato.");
           } else if (s === 404) {
             setFormMessage("API non trovata.");
+           
+            
           } else {
             setFormMessage("Errore del server. Riprova più tardi.");
+             
+            
           }
+         
         } else if (error.request) {
           setFormMessage(
             "Nessuna risposta dal server. Controlla la connessione."
@@ -51,11 +69,16 @@ export default function SignupPage(props: any) {
         } else {
           setFormMessage("Errore applicativo imprevisto.");
         }
+        
+        
+       
+        
       });
   };
 
   // da cambiare molto quando guardiamo bene  questione degli stili temi etc con mui. per ora così che almeno c'è
   return (
+    
     <Box
       sx={{
         position: "fixed", // provandoi a togliere le scrollbar
