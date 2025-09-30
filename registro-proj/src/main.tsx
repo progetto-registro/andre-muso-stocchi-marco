@@ -7,6 +7,7 @@ import { LoadingSystem } from "./shared/loading/LoadingSystem";
 
 import "./index.css";
 import App from "./App.tsx";
+import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
@@ -14,6 +15,7 @@ createRoot(document.getElementById("root")!).render(
         <LoadingSystem>
           <App/>
         </LoadingSystem>
+        <ToastContainer />
       </LocalizationProvider>
   </BrowserRouter>
 );
