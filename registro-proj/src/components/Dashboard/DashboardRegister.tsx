@@ -37,7 +37,9 @@ export default function DashboardRegister({
                 <TableCell />
                 <TableCell>Nome</TableCell>
                 <TableCell align="right">Cognome</TableCell>
-                <TableCell align="right">CF</TableCell>
+                <TableCell align="right">Data di nascita</TableCell>
+                <TableCell align="right">Sesso</TableCell>
+                <TableCell align="right">Codice fiscale</TableCell>
                 <TableCell align="right">
                   <Button onClick={onCreate}>Aggiungi Studente</Button>
                 </TableCell>
@@ -50,6 +52,8 @@ export default function DashboardRegister({
                     <TableCell />
                     <TableCell>{studente.nome}</TableCell>
                     <TableCell align="right">{studente.cognome}</TableCell>
+                    <TableCell align="right">{studente.dataNascita}</TableCell>
+                    <TableCell align="right">{studente.sesso}</TableCell>
                     <TableCell align="right">{studente.cf}</TableCell>
                     <TableCell align="right">
                       <Button onClick={() => onModify(studente)}>

@@ -1,24 +1,25 @@
-## uscito BeExprress guardarsi swagger
-
 # MARCO
 
 - [ ] fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
+- [ ] 🟠finire dashboard
 
 # MUSO
 
-- [ ] fare **Home** e comp card personalizzato da utilizzare nella home e magari altrove
-- [ ] **landing page** ( accedi o registrati) ricorda di usare **mui** di google .
+- [ ] 🔴fare **Home** e comp card personalizzato da utilizzare nella home e magari altrove
+- [x] **landing page** ( accedi o registrati) ricorda di usare **mui** di google .
 
 # STOCCHI
 
 - [x] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
 - [x] iniziare **class-register** (>tableregister > row)
+- [ ] 🔴 sostituire **error message** con **react tostify** e **AGGIUNGERE MESSAGGI NON ERROR**
 
 # ANDRE
 
+- [ ] 🔴 mui per la rotellina
 - [ ] tutte le volte che ricevi un 401 non auth devi andare su pagina login
 - [ ] 🔴 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
-- [ ] trasform per vedere tutto form ? brutto . solo su signuppage ? no
+- [ ] 🟠trasform per vedere tutto form ? brutto . solo su signuppage ? no
 - [ ] 🟢(vediamo) theme ? themeProvider nel main e non a muzzo
 - [ ] uniformare comp loggati : tutti ricevono loggedUser (non .name !) e se serve anche callback per sloggare. guardare **LogCheck** (=> class Register?)
 - [ ] 🟡 definire type Props di tutti comp (parti da singup page)
@@ -32,7 +33,8 @@
 - [ ] valutare l utilizzo di **Context** e nel caso rivedere stato isLogged (per ora solo questo direi) . Anche le _animazioni di caricamento_ forse top con ctxt. **User loggato** da fare alla peggio con props App=> loggedComp e **callback** su signup e login
 - [ ] approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
 - [ ] 🟠 controllare endpoint e funziona,mento con be
-- [ ] 🔴nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
+- [x] 🟢 NON SERVIVA USERLOGGED: nella post di signup , login e modifica cambiare modo di comunicare user a context ( per ora fake mockup)
+- [ ] 🔴 togliere callback di userlogged 🟢o mantenerlo, fare un context per lui .. e usarlo magari per ricordarsi login per volta dopo non so. se proprio troppo tempo
 - [x] La data non fuzniona, fare context (User, isLogged, etc)
 
 # PER TUTTI
