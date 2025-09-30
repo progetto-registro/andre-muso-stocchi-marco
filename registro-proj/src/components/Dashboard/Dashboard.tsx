@@ -1,6 +1,7 @@
 import { Alert, Box, Container } from "@mui/material";
 import type { Studente } from "../../models/Studente";
 import { useEffect, useState } from "react";
+import { useLoading } from "../../shared/loading/hooks";
 import axios from "axios";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import EditStudent from "./EditStudent";
@@ -13,8 +14,11 @@ import { useNavigate } from "react-router-dom";
 import DashboardTable from "./DashboardTable";
 
 export default function Dashboard() {
-  const [studenti, setStudenti] = useState<Studente[]>([]);
+
   const navigate = useNavigate();
+  const { runWithLoading } = useLoading();
+
+  const [studenti, setStudenti] = useState<Studente[]>([]);
   const [refetch, setRefetch] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [studenteInModifica, setStudenteInModifica] = useState<
@@ -23,40 +27,41 @@ export default function Dashboard() {
 
   //La classe ClassRegisterMode in realtà va bene anche qui visto che ha gli stessi stati
   const [mode, setMode] = useState<ClassRegisterMode>("view");
-
-  const apiLink = "/api/studenti"; //   basta usare /api/studenti . il primo pezzo è mappato su api nel viteconfig
-
+  // "/api/studenti"
   useEffect(() => {
-    axios
-      .get(apiLink)
-      .then((res) => {
-        console.log(res.data);
-        setStudenti(res.data);
-        setRefetch(false);
-      })
-      .catch((error) => {
-        setRefetch(false);
-        console.log(error);
-        setErrorMessage("");
-        if (error.response) {
-          const s = error.response.status;
-          if (s === 401) {
-            setErrorMessage("Non autorizzato.");
-            navigateLandingPageIfNotAuth(error, navigate);
-          } else if (s === 404) {
-            setErrorMessage("API non trovata.");
-          } else {
-            setErrorMessage("Errore del server. Riprova più tardi.");
-          }
-        } else if (error.request) {
-          setErrorMessage(
-            "Nessuna risposta dal server. Controlla la connessione."
-          );
+  let cancelled = false;
+
+  void runWithLoading(async () => {
+    setErrorMessage(null);
+    try {
+      const res = await axios.get<Studente[]>("/api/studenti");
+      if (cancelled) return;
+      setStudenti(res.data ?? []);
+      setRefetch(false);
+    } catch (error: any) {
+      if (cancelled) return;
+      setRefetch(false);
+      setErrorMessage("");
+      if (error.response) {
+        const s = error.response.status;
+        if (s === 401) {
+          setErrorMessage("Non autorizzato.");
+          navigateLandingPageIfNotAuth(error, navigate);
+        } else if (s === 404) {
+          setErrorMessage("API non trovata.");
         } else {
-          setErrorMessage("Errore applicativo imprevisto.");
+          setErrorMessage("Errore del server. Riprova più tardi.");
         }
-      });
-  }, [refetch]);
+      } else if (error.request) {
+        setErrorMessage("Nessuna risposta dal server. Controlla la connessione.");
+      } else {
+        setErrorMessage("Errore applicativo imprevisto.");
+      }
+    }
+  }, "Carico studenti…");
+
+  return () => { cancelled = true; };
+}, [refetch, runWithLoading, navigate]);
 
     useEffect(() => {
       if (errorMessage) {
@@ -75,19 +80,21 @@ export default function Dashboard() {
     setStudenteInModifica(studente);
     setMode("edit");
   };
-
+  //
   const onDelete = async (studente: Studente) => {
-    setErrorMessage("");
-    try {
-      await axios.delete(`${apiLink}/elimina`, { data: { cf: studente.cf } });
-      setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
+  setErrorMessage("");
+  try {
+    await runWithLoading(async () => {
+      await axios.delete("/api/studenti/elimina", { data: { cf: studente.cf } });
+      setStudenti(prev => prev.filter(s => s.cf !== studente.cf));
       setMode("view");
-    } catch (error) {
-      console.error(error);
-      setErrorMessage("Impossibile eliminare lo studente.");
-    }
-  };
-
+    }, "Elimino studente…");
+  } catch (error) {
+    console.error(error);
+    setErrorMessage("Impossibile eliminare lo studente.");
+  }
+};
+/////////////// ARRIVATO QUI !!!!!!!!!!!! !!!!!!!!!!! !!!!!!!!!!! 
   const onSaved = async (studente: Studente) => {
     setErrorMessage("");
 
@@ -101,7 +108,7 @@ export default function Dashboard() {
     try {
       if (studenteInModifica) {
         //Quando dev'essere modificato fa questo
-        await axios.post(`${apiLink}/modifica`, nuovoStudente);
+        await axios.post("/api/studenti/modifica", nuovoStudente);
         setRefetch(true);
         setStudenti((precedente) =>
           precedente.map((s) =>
@@ -110,7 +117,7 @@ export default function Dashboard() {
         );
       } else {
         //Quando invece è nuovo fa questo
-        await axios.put(`${apiLink}/nuovo`, nuovoStudente);
+        await axios.put("/api/studenti/nuovo", nuovoStudente);
         setRefetch(true);
         setStudenti((prev) => [...prev, nuovoStudente]);
       }

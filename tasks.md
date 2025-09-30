@@ -16,6 +16,7 @@
 
 # ANDRE
 
+- [ ] 🔴 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti
 - [ ] 🔴 sotto signup navigate login e sotto login navigate signnup
 - [ ] 🔴 mui per la rotellina
 - [ ] tutte le volte che ricevi un 401 non auth devi andare su pagina login
