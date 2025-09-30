@@ -20,9 +20,7 @@ export default function Dashboard() {
   //La classe ClassRegisterMode in realtà va bene anche qui visto che ha gli stessi stati
   const [mode, setMode] = useState<ClassRegisterMode>("view");
 
-  const apiLink =
-    "https://68d7e3ba2144ea3f6da6bd33.mockapi.io/api/studenti/Studenti";
-  //"http://localhost:8080/api/studenti";   basta usare /api/studenti . il primo pezzo è mappato su api nel viteconfig
+  const apiLink = "/api/studenti"; //   basta usare /api/studenti . il primo pezzo è mappato su api nel viteconfig
 
   useEffect(() => {
     axios
@@ -40,7 +38,7 @@ export default function Dashboard() {
           const s = error.response.status;
           if (s === 401) {
             setErrorMessage("Non autorizzato.");
-             navigateLandingPageIfNotAuth(error,navigate);
+            navigateLandingPageIfNotAuth(error, navigate);
           } else if (s === 404) {
             setErrorMessage("API non trovata.");
           } else {
@@ -57,46 +55,64 @@ export default function Dashboard() {
   }, [refetch]);
 
   const onCreate = () => {
+    setErrorMessage("");
     setStudenteInModifica(undefined);
-    //navigate("/dashboard/new");
     setMode("edit");
   };
   const onModify = (studente: Studente) => {
+    setErrorMessage("");
     setStudenteInModifica(studente);
-    //navigate(`/dashboard/${studente.cf}/edit`, { state: { studente } });
     setMode("edit");
   };
 
   const onDelete = async (studente: Studente) => {
+    setErrorMessage("");
     try {
-      await axios.delete(apiLink + `/${studente.cf}`);
+      await axios.delete(`${apiLink}/elimina`, { data: { cf: studente.cf } });
       setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
-    } catch (error) {
-      console.error(error);
-      setErrorMessage("Impossibile eliminare lo studente. Riprova più tardi.");
-    }
-    setMode("view");
-  };
-
-  const onSaved = async (saved: Studente) => {
-    try {
-      if (studenti.some((s) => s.cf === saved.cf)) {
-        //se dev'essere modificato
-        await axios.put(`${apiLink}/${saved.cf}`, saved);
-        setStudenti((prev) => prev.map((s) => (s.cf === saved.cf ? saved : s)));
-      } else {
-        // se va aggiunto
-        await axios.post(apiLink, saved);
-        setStudenti((prev) => [...prev, saved]);
-      }
       setMode("view");
     } catch (error) {
       console.error(error);
-      setErrorMessage("Errore nel salvataggio dello studente.");
+      setErrorMessage("Impossibile eliminare lo studente.");
+    }
+  };
+
+  const onSaved = async (saved: Studente) => {
+    setErrorMessage("");
+
+    const payload: Studente = {
+      ...saved,
+      cf: saved.cf.toUpperCase(),
+      sesso: saved.sesso.toUpperCase() as "M" | "F",
+      dataNascita: saved.dataNascita,
+    };
+
+    try {
+      if (studenteInModifica) {
+        //Quando dev'essere modificato fa questo
+        await axios.post(`${apiLink}/modifica`, payload);
+        setRefetch(true);
+        setStudenti((prev) =>
+          prev.map((s) => (s.cf.toUpperCase() === payload.cf ? payload : s))
+        );
+      } else {
+        //Quando invece è nuovo fa questo
+        await axios.put(`${apiLink}/nuovo`, payload);
+        setRefetch(true);
+        setStudenti((prev) => [...prev, payload]);
+      }
+
+      setMode("view");
+    } catch (error: any) {
+      console.error(error);
+      setErrorMessage(
+        error.response?.data ?? "Errore nel salvataggio dello studente."
+      );
     }
   };
 
   const onCancel = () => {
+    setErrorMessage("");
     setMode("view");
     setStudenteInModifica(undefined);
   };

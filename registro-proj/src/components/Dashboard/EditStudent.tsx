@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Studente } from "../../models/Studente";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 type EditStudentProps = {
   studenteInModifica?: Studente;
@@ -19,8 +26,8 @@ export default function EditStudent({
     cf: "",
     nome: "",
     cognome: "",
-    dataNascita:"", // da implementare
-    sesso: undefined, // da implementare (può essere "M" o "F" o undefined ma validazione solo M o F)
+    dataNascita: "", // da implementare
+    sesso: "", // da implementare (può essere "M" o "F" o undefined ma validazione solo M o F)
   });
 
   //Nel caso il studente va solo modificato
@@ -38,6 +45,20 @@ export default function EditStudent({
     e.preventDefault();
     onSaved(form);
   };
+
+  // Da "DD/MM/YYYY" a "YYYY-MM-DD"
+  function convertiDataAFormatoBrutto(date: string) {
+    const [day, month, year] = date.split("/");
+    if (day && month && year) return `${year}-${month}-${day}`;
+    return "";
+  }
+
+  // Da "YYYY-MM-DD" a "DD/MM/YYYY"
+  function convertiDataAFormatoBello(date: string) {
+    const [year, month, day] = date.split("-");
+    if (year && month && day) return `${day}/${month}/${year}`;
+    return "";
+  }
 
   return (
     <Box
@@ -74,6 +95,36 @@ export default function EditStudent({
           required
           disabled={!!studenteInModifica} // non modifico il CF in edit
         />
+
+        <TextField
+          label="Data di nascita"
+          type="date"
+          value={convertiDataAFormatoBrutto(form.dataNascita)}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              dataNascita: convertiDataAFormatoBello(e.target.value),
+            })
+          }
+          slotProps={{
+            inputLabel: { shrink: true },
+          }}
+          required
+        />
+
+        <TextField
+          select
+          name="sesso"
+          label="Sesso"
+          value={form.sesso}
+          onChange={(e) =>
+            setForm({ ...form, sesso: e.target.value as "M" | "F" })
+          }
+          required
+        >
+          <MenuItem value="M">M</MenuItem>
+          <MenuItem value="F">F</MenuItem>
+        </TextField>
 
         <Stack direction="row" spacing={2}>
           <Button type="submit" variant="contained" color="primary">
