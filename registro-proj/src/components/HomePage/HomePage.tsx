@@ -1,4 +1,3 @@
-// src/components/HomePage/HomePage.tsx
 import { Box, Typography, Card, CardContent, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { navItems } from "../../shared/staticData";
