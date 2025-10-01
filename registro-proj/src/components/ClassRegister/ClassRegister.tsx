@@ -8,7 +8,7 @@ import TableRegister from "./TableRegister";
 import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
 import type { Lezione } from "../../models/Lezione";
 import type { Studente } from "../../models/Studente";
-import { navigateLandingPageIfNotAuth } from "../../shared/utils";
+import { navigateLandingPageIfNotAuth, popupAlert } from "../../shared/utils";
 
 import { useLoading } from "../../shared/loading/hooks";
 
@@ -50,7 +50,11 @@ export default function ClassRegister() {
   );
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  useEffect(() => {
+      if (errorMessage) {
+        popupAlert(errorMessage, "rosso");
+      }
+    }, [errorMessage]);
   // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
   useEffect(() => {
     let cancelled = false;
@@ -193,6 +197,7 @@ export default function ClassRegister() {
                 dataLezione: payload.dataLezione,
                 studenti: payload.studenti,
               };
+              popupAlert("Modifica avvenuta con successo!", "verde");
               return copy;
             });
 
@@ -217,8 +222,10 @@ export default function ClassRegister() {
               // fallback: refetch elenco
               const lezRes = await axios.get<Lezione[]>("/api/lezioni");
               setLezioni(lezRes.data ?? []);
+             
               navigate("/class-register");
             }
+             popupAlert("Nuova lezione aggiunta!", "verde");
           }
         },
         payload.id != null ? "Aggiorno lezione…" : "Creo lezione…"
@@ -240,6 +247,7 @@ export default function ClassRegister() {
       if (mode === "edit" && editingLessonId === id) {
         navigate("/class-register");
       }
+     popupAlert("Rimozione avvenuta con successo!", "verde");
     } catch (err) {
       setErrorMessage(mapErrorMessage(err));
       navigateLandingPageIfNotAuth(err, navigate);
@@ -274,11 +282,7 @@ export default function ClassRegister() {
           py: 10,
         }}
       >
-        {errorMessage && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
+      
 
         <TableRegister
           mode={mode}

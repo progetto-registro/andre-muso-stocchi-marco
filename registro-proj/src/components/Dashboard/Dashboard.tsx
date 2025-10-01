@@ -70,6 +70,7 @@ export default function Dashboard() {
   }, [refetch, runWithLoading, navigate]);
 
   // tolto errorMessage nelle textbox : ora serve solo a dare messaggio a toast ( che è dentro popupAllert)
+  
   useEffect(() => {
     if (errorMessage) {
       popupAlert(errorMessage, "rosso");
@@ -96,6 +97,7 @@ export default function Dashboard() {
         });
         setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
         setMode("view");
+        popupAlert("Rimozione avvenuta con successo!","verde");
       }, "Elimino studente…");
     } catch (error) {
       console.error(error);
@@ -132,11 +134,11 @@ export default function Dashboard() {
               "/api/studenti/nuovo",
               nuovoStudente
             );
-
+                
             setRefetch(true); //🔴🟠 idem
             setStudenti((prev) => [...prev, res.data ?? nuovoStudente]);
           }
-
+          popupAlert("Registro modificato!","verde");
           setMode("view");
         },
         studenteInModifica ? "Aggiorno studente…" : "Creo studente…" // secondo param di runWithLoading , per messaggio rotella

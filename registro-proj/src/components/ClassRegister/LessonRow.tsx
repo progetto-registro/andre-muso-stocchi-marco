@@ -23,6 +23,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
+import { popupAlert } from "../../shared/utils";
 
 type LessonRowProps = {
   mode: ClassRegisterMode;
@@ -90,6 +91,9 @@ const LessonRow = forwardRef<HTMLTableRowElement, LessonRowProps>( //react ricev
       studenti?: string;
       [k: string]: string | undefined;
     }>({});
+
+  
+    
 
     // 🔴 CF globali in ordine per non dover calcolare ogni volta senza motivo e per leggibilità e manutenibilità , in particolare nel redner
     const cfsGlobaliOrdinati = useMemo(
