@@ -161,7 +161,6 @@ export default function Dashboard() {
         async () => {
           if (studenteInModifica) {
             await axios.post("/api/studenti/modifica", nuovoStudente); // volendo prendi la res e fai (res.data as any ).unCampoDelPayloadCheUsiTipoSuccess===false .. e poi in altri campi di res.data magari c'è info. e puoi fare throw new error e passar emessaggio contenuto dalla res o personalizzato, e poi error catchato dal catch esterno e setta errormessage => toast. ma noi non usiamo il 200 per gestire errori
-
             setStudenti((prev) =>
               prev.map((s) =>
                 s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s
@@ -172,7 +171,17 @@ export default function Dashboard() {
               "/api/studenti/nuovo",
               nuovoStudente
             );
-            setStudenti((prev) => [...prev, res.data ?? nuovoStudente]);
+            setStudenti((prev) => [
+              ...prev,
+              {
+                ...(res.data ?? nuovoStudente),
+                cf: nuovoStudente.cf.toUpperCase(),
+                nome : nuovoStudente.nome,
+                cognome: nuovoStudente.cognome,
+                dataNascita: nuovoStudente.dataNascita,
+                sesso: nuovoStudente.sesso,
+              },
+            ]);
           }
           popupAlert("Registro modificato!", "verde");
           setMode("view");

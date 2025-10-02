@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import type { Studente } from "../../models/Studente";
 import { Add, Delete, Edit } from "@mui/icons-material";
-
+//hookusenavigaterotella, in hook
 type DashboardTableProps = {
   studenti: Studente[] | undefined;
   onModify: (studente: Studente) => void;
@@ -51,7 +51,7 @@ export default function DashboardTable({
             </TableHead>
             <TableBody>
               {[...(studenti ?? [])].map((studente) => (
-                <TableRow key={studente.cf}>
+                <TableRow key={studente.cf.toUpperCase()}>
                   <TableCell />
                   <TableCell>{studente.cognome}</TableCell>
                   <TableCell align="left">{studente.nome}</TableCell>
