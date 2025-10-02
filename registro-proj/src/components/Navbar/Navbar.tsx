@@ -48,7 +48,7 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
     setOpen(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = () => {  // ci siamo dimenticati ti fare fetch logout
     setOpen(false);
     onLogout();
     navigateRotella("/", { message: "Loggin out", replace: true });

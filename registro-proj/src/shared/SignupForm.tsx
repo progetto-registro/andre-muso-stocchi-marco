@@ -464,7 +464,7 @@ export default function SignupForm({
               alignSelf: "center",
               mt: 1,
               px: { xs: 4, sm: 6 },
-              bgcolor: "#ebee59ff",
+              bgcolor: "gray",
               color: "magenta",
               fontSize: "1.5rem",
               borderRadius: "6px",

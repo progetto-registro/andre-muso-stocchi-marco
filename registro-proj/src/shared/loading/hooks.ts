@@ -1,7 +1,7 @@
 import { useCallback, useContext, useState } from "react";
 import { LoadingStateContext, LoadingActionsContext } from "./contexts";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function useLoading() {
   const ctx = useContext(LoadingActionsContext);
@@ -25,21 +25,22 @@ export function useHideRotellaVECCHIO() {
   }, [hide]);
 }
 
-// piu carino
 export function useHideRotella(triggers: ReadonlyArray<unknown> = []) {
-  const { hide, trigger } = useLoading();
+  const { hide } = useLoading();
 
   useEffect(() => {
     //timeout e clear da togliere ma avevo paura fosse troppo velcoe
     const idT = setTimeout(hide, 500);
-    const idRaf = requestAnimationFrame(() => hide()); // ciò che fa è chiaro.  lo fa " al prossimo frame", quindi almeno al primo penso sia questa l idea, in generale piu morbido di timeout ( che lo fa al prossimo macrotask, qualsiasi cosa sia un macrotask, avviene piu spesso ( immagino sia la prossima cosa in lista nell elenco di cose .. lo stesso elenco in cui se returna una promise diventa prima in lista))
+   // const idRaf = requestAnimationFrame(() => hide()); // ciò che fa è chiaro.  lo fa " al prossimo frame", quindi almeno al primo penso sia questa l idea, in generale piu morbido di timeout ( che lo fa al prossimo macrotask, qualsiasi cosa sia un macrotask, avviene piu spesso ( immagino sia la prossima cosa in lista nell elenco di cose .. lo stesso elenco in cui se returna una promise diventa prima in lista))
 
     return () => {
-      cancelAnimationFrame(idRaf);
+      //cancelAnimationFrame(idRaf);
       clearTimeout(idT);
     };
-  }, [hide, trigger, ...triggers]); //così gli passiamoa nche le mode in classrom etc
+  }, [hide, ...triggers]); //così gli passiamoa nche le mode in classrom etc
 }
+
+
 
 //🤔⚠️❓❔ PERCHE' NON VA BENE❓❔
 /*
@@ -65,17 +66,17 @@ export type NavigateWithRotellaOptions = {
 
 
 
-export function useNavigateWithRotella() {
+export function useNavigateWithRotella1() {
   const navigate = useNavigate();
   const { show, setMessage } = useLoading();
-  const {setTrigger} = useLoading();
+  //const {setTrigger} = useLoading();
 
   // così useNavigate non ce ne da una nuova ogni volta e visto che la usano tutti causerebbe rerender a tutti
   return useCallback(
     (path: string, opts?: NavigateWithRotellaOptions) => {
       const message = opts?.message ?? "Caricamento...";
       setMessage(message);
-     setTrigger();
+     //setTrigger();
       show();
 
 
@@ -87,6 +88,32 @@ export function useNavigateWithRotella() {
         },
       });
     },
-    [navigate, show, setMessage, setTrigger] 
+    [navigate, show, setMessage] 
+  );
+}
+
+export function useNavigateWithRotella() {
+  const navigate = useNavigate();
+  const location = useLocation();          
+  const { show, hide, setMessage } = useLoading(); 
+
+  return useCallback(
+    (path: string, opts?: NavigateWithRotellaOptions) => {
+      const message = opts?.message ?? "Caricamento...";
+      setMessage(message);
+      show();
+
+      // fare in modo che se il path passato a cui andare è della stessa pagina della pagina del path attuale, aspetti e poi nascondi ( ora rimane aperto) e poi usare ovunque navigate con navigateRotella=useNavigateWithRotella()
+      if (path === location.pathname) {
+        requestAnimationFrame(() => hide());
+        return;
+      }
+
+      navigate(path, {
+        replace: !!opts?.replace,
+        state: { ...opts?.state, message },
+      });
+    },
+    [navigate, location.pathname, show, hide, setMessage]
   );
 }

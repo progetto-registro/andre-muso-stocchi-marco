@@ -15,8 +15,8 @@ export type LoadingActions = {
     wait?: boolean
   ) => Promise<T>;
   //hideRotella: ()=>void;
-  trigger: boolean;
-  setTrigger: (nuovo?: boolean)=>void;
+  // trigger: boolean;
+  //setTrigger: (nuovo?: boolean)=>void;
 };
 
 

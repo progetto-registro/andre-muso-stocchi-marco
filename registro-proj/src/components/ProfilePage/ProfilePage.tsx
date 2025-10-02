@@ -95,6 +95,10 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
       {/* CARD */}
       <Container
         maxWidth="sm" /*Container: un comp comodo per gestire responsive dei suoi figli in una bottta sola */
+        sx={{
+          transform: "scale(0.67)",
+          transformOrigin: "center center",
+        }}
       >
         <SignupForm
           formSettings={
