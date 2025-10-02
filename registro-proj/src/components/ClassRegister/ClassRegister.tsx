@@ -8,7 +8,12 @@ import TableRegister from "./TableRegister";
 import type { PageMode } from "../../models/PageMode";
 import type { Lezione } from "../../models/Lezione";
 import type { Studente } from "../../models/Studente";
-import { navigateLandingPageIfNotAuth, sleep } from "../../shared/utils";
+
+import {
+  navigateLandingPageIfNotAuth,
+  sleep,
+  popupAlert,
+} from "../../shared/utils";
 
 import {
   useLoading,
@@ -57,6 +62,12 @@ export default function ClassRegister() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useHideRotella([mode]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      popupAlert(errorMessage, "rosso");
+    }
+  }, [errorMessage]);
 
   // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
   useEffect(() => {
@@ -233,6 +244,7 @@ export default function ClassRegister() {
                 dataLezione: payload.dataLezione,
                 studenti: payload.studenti,
               };
+              popupAlert("Modifica avvenuta con successo!", "verde");
               return copy;
             });
 
@@ -263,6 +275,7 @@ export default function ClassRegister() {
               setLezioni(lezRes.data ?? []);
               navigateRotella("/class-register");
             }
+            popupAlert("Nuova lezione aggiunta!", "verde");
           }
         },
         payload.id != null ? "Aggiorno lezione…" : "Creo lezione…",
@@ -285,6 +298,7 @@ export default function ClassRegister() {
       if (mode === "edit" && editingLessonId === id) {
         navigateRotella("/class-register");
       }
+      popupAlert("Rimozione avvenuta con successo!", "verde");
     } catch (error) {
       console.error(error);
       if (axios.isAxiosError(error)) {
@@ -336,12 +350,6 @@ export default function ClassRegister() {
           py: 10,
         }}
       >
-        {errorMessage && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-
         <TableRegister
           mode={mode}
           lezioni={lezioni}
