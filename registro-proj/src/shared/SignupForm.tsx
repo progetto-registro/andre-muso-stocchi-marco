@@ -180,12 +180,12 @@ export default function SignupForm({
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  function registrati() {
-    navigateRotella("/signup", {
-      message: "registrati ...",
+  const navigaAccesso = (mode: "login" | "signup") => {
+    navigateRotella(`/${mode}`, {
+      message: mode === "signup" ? "Registrati..." : "Accedi...",
       replace: true,
     });
-  }
+  };
 
   return (
     <Paper
@@ -474,7 +474,7 @@ export default function SignupForm({
             {submitting ? "Caricamento" : formSettings.buttonText}
           </Button>
 
-          {!formSettings.visible.includes("cf") && (
+          {["login", "signup"].includes(formSettings.mode) && (
             <Button
               sx={{
                 alignSelf: "center",
@@ -485,10 +485,15 @@ export default function SignupForm({
                 fontSize: "1.0rem",
               }}
               type="button"
-              disabled={formSettings.mode !== "login"}
-              onClick={registrati}
+              onClick={() =>
+                formSettings.mode === "login"
+                  ? navigaAccesso("signup")
+                  : navigaAccesso("login")
+              }
             >
-              Non sei ancora registrato? registrati
+              {formSettings.mode === "login"
+                ? "Non sei ancora registrato? Registrati"
+                : "Sei già registrato? Accedi"}
             </Button>
           )}
         </Stack>
