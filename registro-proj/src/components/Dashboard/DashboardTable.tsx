@@ -50,32 +50,30 @@ export default function DashboardTable({
               </TableRow>
             </TableHead>
             <TableBody>
-              {[...(studenti ?? [])]
-                .sort((a, b) => a.cognome.localeCompare(b.cognome)) //🔴 qui da errore quando provi ad aggiungere studente
-                .map((studente) => (
-                  <TableRow key={studente.cf}>
-                    <TableCell />
-                    <TableCell>{studente.cognome}</TableCell>
-                    <TableCell align="left">{studente.nome}</TableCell>
-                    <TableCell align="center">{studente.dataNascita}</TableCell>
-                    <TableCell align="center">{studente.sesso}</TableCell>
-                    <TableCell align="center">{studente.cf}</TableCell>
-                    <TableCell align="center">
-                      <Tooltip title="Modifica">
-                        <Button
-                          startIcon={<Edit />}
-                          onClick={() => onModify(studente)}
-                        />
-                      </Tooltip>
-                      <Tooltip title="Elimina">
-                        <Button
-                          startIcon={<Delete />}
-                          onClick={() => onDelete(studente)}
-                        />
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {[...(studenti ?? [])].map((studente) => (
+                <TableRow key={studente.cf}>
+                  <TableCell />
+                  <TableCell>{studente.cognome}</TableCell>
+                  <TableCell align="left">{studente.nome}</TableCell>
+                  <TableCell align="center">{studente.dataNascita}</TableCell>
+                  <TableCell align="center">{studente.sesso}</TableCell>
+                  <TableCell align="center">{studente.cf}</TableCell>
+                  <TableCell align="center">
+                    <Tooltip title="Modifica">
+                      <Button
+                        startIcon={<Edit />}
+                        onClick={() => onModify(studente)}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Elimina">
+                      <Button
+                        startIcon={<Delete />}
+                        onClick={() => onDelete(studente)}
+                      />
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>

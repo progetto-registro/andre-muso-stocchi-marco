@@ -99,12 +99,13 @@ export default function Dashboard() {
     setStudenteInModifica(undefined);
     setMode("edit");
   };
+
   const onModify = (studente: Studente) => {
     setErrorMessage("");
     setStudenteInModifica(studente);
     setMode("edit");
   };
-  //
+
   const onDelete = async (studente: Studente) => {
     setErrorMessage("");
     try {
