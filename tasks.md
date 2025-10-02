@@ -1,13 +1,12 @@
 # MARCO
 
-- [ ] 🔴 DashboardTable , **riga 56** da errore quando provi ad aggiungere studente nuovo. (cannot read property undefined) (però se
+- [x] 🔴 DashboardTable , **riga 56** da errore quando provi ad aggiungere studente nuovo. (cannot read property undefined) (però se
       ricarichi lo ha aggiunto... ... )
 - [x] fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
 - [x] finire dashboard
 
 # MUSO
 
-- [ ] 🔴 esattamente dopo ogni get/post/put/delete axios metterci un
 - [x] fare **Home** e comp card personalizzato da utilizzare nella home e magari altrove
 - [x] **landing page** ( accedi o registrati) ricorda di usare **mui** di google .
 
@@ -16,22 +15,23 @@
 - [ ] 🔴 debuggare di brutto l app usandola e segnarsi errori
 - [x] **registrazione** Usare api (es, per vedere se utente c'è già PK già usata penso sia un 400 bad request , da chiedere al prof ma intanto mettiamolo così, e per pushare in DB backend la nuova uteza) . usare libreria **axios** per usare API.
 - [x] iniziare **class-register** (>tableregister > row)
-- [ ] 🔴 sostituire **error message** con **react tostify** e **AGGIUNGERE MESSAGGI NON ERROR**
+- [x] 🔴 sostituire **error message** con **react tostify** e **AGGIUNGERE MESSAGGI NON ERROR**
 
 # ANDRE
 
-- [ ] 🔴 mettere rotella in navbar, home e landing
-- [ ] 🔴 controllare home e landing
-- [ ] 🟠🟠🟠 nuova lezione => le ore !! 1<->5 . l handler forza l 1 . deve farlo sul sul focus-loss
+- [x] mettere rotella in navbar, home e landing
+- [x] controllare home e landing
+- [x](serviiva refactoor a sto punto ma amen) nuova lezione => le ore !! 1<->5 . l handler forza l 1 . deve farlo sul sul focus-loss
 - [x] capire meglio await async (void se non ti serve await anche se async ? perch?) .. e anche in relazione a runWithLoading.. e a then , setTimeout, etc
 - [ ] 🟠 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti (gestire data anche in dashboard)
 - [ ] 🔴 sotto signup navigate login e sotto login navigate sign up
 - [x] mui per la rotellina (MANCA PROFILE E LE NAVIGATE. GIà CHE CI SEI FAI I REDIRECT NON AUTH PER 401)
 - [x] tutte le volte che ricevi un 401 non auth devi andare su pagina login
-- [ ] 🟡 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
-- [ ] 🟡 trasform per vedere tutto form ? brutto . solo su signuppage ? no
-- [ ] 🟡 definire type Props di tutti comp (parti da singup page)
-- [ ] provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
+- [x] (allucinazione) in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare
+      se costruisco male oggetto o altro
+- [ ] (non riuscimao a currare mui e estetica, brilla) trasform per vedere tutto form ? brutto . solo su signuppage ? no
+- [x] definire type Props di tutti comp (parti da singup page)
+- [ ] 🟢 provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
 - [x] (non lo faremo) ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
 - [x] fare **routing** , tutti i comp principali (**pagine**) vuoti
 - [x] fare **NavBar**

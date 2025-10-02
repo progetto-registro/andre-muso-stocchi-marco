@@ -19,6 +19,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 import { navItems } from "../../shared/utils";
+import {
+  useNavigateWithRotella,
+} from "../../shared/loading/hooks";
 
 type NavbarProps = {
   onLogout: () => void; // mette a null loggeduser in app e mette a false islogged
@@ -27,7 +30,7 @@ type NavbarProps = {
 
 export default function Navbar({ onLogout, username }: NavbarProps) {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
+  const navigateRotella =  useNavigateWithRotella();
 
   // <<<<<<  const toggle = (v: boolean) => () => setOpen(v);  >>>>>>   funzione che returna funzione puoi scrivere nel jsx direttamente {toggle(true)} perchè sarebbe come scrivere {(v: boolean) => setOpen(v)} e dargli true cioè fare {()=>setOpen(true)}
   const toggle = () => () => setOpen((prev) => !prev); // caso ipersemplice totalmente superflua sta cosa
@@ -40,15 +43,15 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
   //   setOpen(v);
   // }
 
-  const go = (path: string) => {
-    navigate(path);
+  const go = (path: string, name: string) => {
+    navigateRotella(path, {message: `Caricando ${name}...`});
     setOpen(false);
   };
 
   const handleLogout = () => {
     setOpen(false);
     onLogout();
-    navigate("/", { replace: true });
+    navigateRotella("/", { message: "Loggin out", replace: true });
   };
 
   // const items = [
@@ -144,7 +147,7 @@ export default function Navbar({ onLogout, username }: NavbarProps) {
             {navItems.map((it) => (
               <ListItem key={it.title} disablePadding>
                 {/*anche una key meno forte andava bene tanto non si ordinano, non si filtrano etc */}
-                <ListItemButton onClick={() => go(it.to)}>
+                <ListItemButton onClick={() => go(it.to, it.title)}>
                   <ListItemIcon>{it.icon}</ListItemIcon>
                   <ListItemText primary={it.title} />
                 </ListItemButton>

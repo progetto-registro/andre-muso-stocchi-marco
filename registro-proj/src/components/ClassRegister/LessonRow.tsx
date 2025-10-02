@@ -24,6 +24,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import { popupAlert } from "../../shared/utils";
+import dayjs from "dayjs"; 
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
 type LessonRowProps = {
   mode: PageMode;
@@ -101,10 +104,10 @@ const LessonRow = forwardRef<HTMLTableRowElement, LessonRowProps>( //react ricev
       [allStudentByCfSorted]
     );
 
-    // cf ordinati della sola lezione utili in view e in edit 🔴
+    // cf ordinati della sola lezione utili in view e in edit
     const cfsLezioneOrdinati = useMemo(() => {
       if (!lezione) return [];
-      const cfLezione = new Set(lezione.studenti.map((s) => s.cf)); // 🟠
+      const cfLezione = new Set(lezione.studenti.map((s) => s.cf)); //  List che non accetta duplicati, ordinata (come HashSet in Java)
       return cfsGlobaliOrdinati.filter((cf) => cfLezione.has(cf));
     }, [lezione, cfsGlobaliOrdinati]);
 
@@ -155,6 +158,7 @@ const LessonRow = forwardRef<HTMLTableRowElement, LessonRowProps>( //react ricev
           datiIniziali[cf] = { present: false, ore: 1 };
         }
         setPresenze(datiIniziali);
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         setErrors({});
         return;
       }
@@ -184,15 +188,16 @@ const LessonRow = forwardRef<HTMLTableRowElement, LessonRowProps>( //react ricev
       if (!Number.isInteger(n) || n < 1 || n > 5) {
         setErrors((e) => ({ ...e, [`ore:${cf}`]: "Ore tra 1 e 5 (intero)" }));
         //se bad input niente update, resta val prec
-        return;
-      }
-
-      // togliamo errore
-      setErrors((e) => {
+      }else{
+        setErrors((e) => {
         // underscore qui sotto è un alias usato quando non userai la cosa
         const { [`ore:${cf}`]: _, ...rest } = e; // in rest ci va tutto ciò che c'è in e tranne quello che va nella chiave che stai estraendo , che in questo caso è una chiave che non ha un nome definito ma è [k:string] e puoi definire come vuoi basta che sia stringa, e poi puoi anche usarla in questi modi
         return rest; // a noi interessava rest perchè volevamo pulire l imput corrente dall errore suo appunto, perchè siamo nella parte andata bene dell if
       });
+      }
+
+      
+      
 
       setPresenze((p) => ({
         ...p,
@@ -235,9 +240,19 @@ const LessonRow = forwardRef<HTMLTableRowElement, LessonRowProps>( //react ricev
     const validate = (): boolean => {
       const e: typeof errors = {};
       if (!dataLezione.trim()) e.dataLezione = "La data è obbligatoria";
-      // opzionale: no data future (lasciato disabilitato)
-      // if (isFuture(dataLezione)) e.dataLezione = "La data non può essere nel futuro";
+      //no foturo e non piu vecchia di un anno
 
+      const d=  dayjs(dataLezione,"DD/MM/YYYY", true);
+      if(!d.isValid()){
+        e.dataLezione ="Data formato non valida"
+      }
+
+        const today = dayjs().startOf("day");
+       const min = today.subtract(1, "year").startOf("day");
+
+       if (d.isBefore(min)){
+        e.dataLezione ="Data piu vecchia di un anno !"
+       }
       if (presentiSelezionati.length === 0)
         e.studenti = "Seleziona almeno uno studente presente";
 

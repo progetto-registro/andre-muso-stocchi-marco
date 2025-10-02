@@ -13,7 +13,6 @@ import { useLoading } from "../../shared/loading/hooks";
 import type { PageMode } from "../../models/PageMode";
 
 import {
-  useNavigateWithRotella,
   useHideRotella,
 } from "../../shared/loading/hooks";
 
@@ -32,7 +31,6 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
   const { runWithLoading, setMessage } = useLoading();
 
   useHideRotella();
-  const navigateRotella = useNavigateWithRotella();
 
   const handleSubmit = async (formData: User) => {
     if (mode === "view") {

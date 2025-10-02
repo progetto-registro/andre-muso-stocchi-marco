@@ -2,9 +2,11 @@ import { Box, Typography, Card, CardContent, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { navItems } from "../../shared/utils";
 import type { NavItem } from "../../shared/utils";
+import { useHideRotella, useNavigateWithRotella } from "../../shared/loading/hooks";
 
 export default function HomePage() {
-  const navigate = useNavigate();
+  const navigateRotella = useNavigateWithRotella();
+  useHideRotella();
 
   return (
     <Box
@@ -48,9 +50,9 @@ export default function HomePage() {
         }}
       >
         {navItems.map((item: NavItem) => (
-          <Card
+          item.title!=="Home" && <Card
             key={item.to}
-            onClick={() => navigate(item.to)}
+            onClick={() => navigateRotella(item.to, {message:`Caricamento ${item.title}`})}
             sx={{
               p: 2.5,
               borderRadius: 3,
@@ -101,7 +103,7 @@ export default function HomePage() {
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(item.to);
+                  navigateRotella(item.to, {message:`Carincando ${item.title}`});
                 }}
               >
                 VAI

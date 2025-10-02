@@ -2,6 +2,7 @@ import AuthCard from './AuthCard';
 import { useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { useHideRotella } from '../../shared/loading/hooks';
 
 // Definisci il tema direttamente qui
 const theme = createTheme({
@@ -28,8 +29,11 @@ export default function LandingPage() {
     document.title = "Benvenuto | La nostra App";
   }, []);
 
-  return (
-    <ThemeProvider theme={theme}>
+
+  useHideRotella();
+
+  return (       //togliere provider da qua
+    <ThemeProvider theme={theme}>   
       <CssBaseline />
       <AuthCard />
     </ThemeProvider>

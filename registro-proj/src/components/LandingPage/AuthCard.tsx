@@ -1,7 +1,12 @@
 import { Card, CardContent, Typography, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useNavigateWithRotella } from "../../shared/loading/hooks";
+
 
 export default function AuthCard() {
+
+const navigateRotella =useNavigateWithRotella();
+
   return (
     <Card
       sx={{
@@ -34,11 +39,10 @@ export default function AuthCard() {
             Login
           </Button>
           <Button
-            component={Link}
-            to="/signup"
             variant="outlined"
             size="large"
             fullWidth
+            onClick = {()=>navigateRotella("/signup")}
           >
             Sign Up
           </Button>

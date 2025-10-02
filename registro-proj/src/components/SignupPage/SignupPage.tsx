@@ -1,12 +1,11 @@
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import type { User } from "../../models/User";
-import { useNavigate } from "react-router-dom";
 import { Box, Container } from "@mui/material";
 
 import SignupForm from "../../shared/SignupForm";
 import { signupFormSettings } from "../../models/FormSettings";
-import { popupAlert, sleep } from "../../shared/utils";
+import { popupAlert} from "../../shared/utils";
 import { useLoading } from "../../shared/loading/hooks";
 
 import {
