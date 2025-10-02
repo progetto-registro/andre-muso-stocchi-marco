@@ -187,6 +187,13 @@ export default function SignupForm({
     });
   }
 
+  function accedi() {
+    navigateRotella("/login", {
+      message: "registrati ...",
+      replace: true,
+    });
+  }
+
   return (
     <Paper
       elevation={11}
@@ -474,7 +481,7 @@ export default function SignupForm({
             {submitting ? "Caricamento" : formSettings.buttonText}
           </Button>
 
-          {!formSettings.visible.includes("cf") && (
+          {formSettings.mode == "login" && (
             <Button
               sx={{
                 alignSelf: "center",
@@ -485,10 +492,26 @@ export default function SignupForm({
                 fontSize: "1.0rem",
               }}
               type="button"
-              disabled={formSettings.mode !== "login"}
               onClick={registrati}
             >
               Non sei ancora registrato? registrati
+            </Button>
+          )}
+
+          {formSettings.mode == "signup" && (
+            <Button
+              sx={{
+                alignSelf: "center",
+                mt: 1,
+                px: { xs: 4, sm: 6 },
+                bgcolor: "transparent",
+                color: "black",
+                fontSize: "1.0rem",
+              }}
+              type="button"
+              onClick={accedi}
+            >
+              Sei già registrato? accedi
             </Button>
           )}
         </Stack>
