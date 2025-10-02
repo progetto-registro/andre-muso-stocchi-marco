@@ -171,17 +171,7 @@ export default function Dashboard() {
               "/api/studenti/nuovo",
               nuovoStudente
             );
-            setStudenti((prev) => [
-              ...prev,
-              {
-                ...(res.data ?? nuovoStudente),
-                cf: nuovoStudente.cf.toUpperCase(),
-                nome : nuovoStudente.nome,
-                cognome: nuovoStudente.cognome,
-                dataNascita: nuovoStudente.dataNascita,
-                sesso: nuovoStudente.sesso,
-              },
-            ]);
+            setStudenti((prev) => [...prev, nuovoStudente]);
           }
           popupAlert("Registro modificato!", "verde");
           setMode("view");
