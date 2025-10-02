@@ -291,7 +291,7 @@ export default function ClassRegister() {
   const onDeleteLesson = async (id: number) => {
     setErrorMessage(null);
     try {
-      await axios.delete("/api/lezione/elimina", { data: { id } });
+      await axios.delete("/api/lezioni/elimina", { data: { id } }); 
       setLezioni((prev) => prev.filter((l) => l.id !== id));
 
       // se eri in view, ci rimani e fine; se eri in edit, torni a classregister senza focusid ovviamente ( non c'è piu la lez)
