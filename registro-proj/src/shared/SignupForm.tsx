@@ -34,6 +34,7 @@ import {
 import type { LoginUser } from "../models/LoginUser";
 
 import { popupAlert } from "./utils";
+import { useHideRotella, useNavigateWithRotella } from "./loading/hooks";
 
 type SignupFormProps = {
   //onSubmit: React.FormEventHandler<HTMLFormElement>; // anche questo indagare differenze  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void | Promise<void>;
@@ -59,6 +60,9 @@ export default function SignupForm({
   const [showPw, setShowPw] = useState<boolean>(false);
   const [showPw2, setShowPw2] = useState<boolean>(false);
   const [showOldPw, setShowOldPw] = useState<boolean>(false);
+
+  useHideRotella();
+  const navigateRotella = useNavigateWithRotella();
 
   // inizializziamo formData con l incomingUser quando serve senno vuoto o come serve. serve anche per quando c'è cambiamento senza smontare visualizza<-> modifica in profilo
   useEffect(() => {
@@ -175,6 +179,13 @@ export default function SignupForm({
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
+
+  function registrati() {
+    navigateRotella("/signup", {
+      message: "registrati ...",
+      replace: true,
+    });
+  }
 
   return (
     <Paper
@@ -462,6 +473,24 @@ export default function SignupForm({
           >
             {submitting ? "Caricamento" : formSettings.buttonText}
           </Button>
+
+          {!formSettings.visible.includes("cf") && (
+            <Button
+              sx={{
+                alignSelf: "center",
+                mt: 1,
+                px: { xs: 4, sm: 6 },
+                bgcolor: "transparent",
+                color: "black",
+                fontSize: "1.0rem",
+              }}
+              type="button"
+              disabled={formSettings.mode !== "login"}
+              onClick={registrati}
+            >
+              Non sei ancora registrato? registrati
+            </Button>
+          )}
         </Stack>
       </Box>
     </Paper>
