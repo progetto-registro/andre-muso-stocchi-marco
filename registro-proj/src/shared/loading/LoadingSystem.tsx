@@ -18,6 +18,11 @@ export function LoadingSystem({ children }: { children: ReactNode }) {
   const [isOpen, setOpen] = useState(false);
   const [message, _setMessage] = useState(DEFAULT_MSG);
 
+  const [trigger, _setTrigger] = useState<boolean>(false); //secondo me per sto setter ci stava eccezione per nomenclatura setName
+  
+  const setTrigger = ()=>useCallback(()=>_setTrigger((prev)=>!prev), [trigger]); 
+
+
   const show = useCallback((msg?: string) => {
     if (msg !== undefined) _setMessage(msg);
     setOpen(true);
@@ -29,6 +34,8 @@ export function LoadingSystem({ children }: { children: ReactNode }) {
   const setMessage = useCallback((msg?: string) => {
     _setMessage(msg === undefined ? DEFAULT_MSG : msg);
   }, []);
+
+  
 
   const runWithLoading = useCallback(
     async <T,>(
@@ -47,10 +54,12 @@ export function LoadingSystem({ children }: { children: ReactNode }) {
       }
     },
     [show, hide]
+
+    
   );
 
-  const actions = useMemo(
-    () => ({ show, hide, setMessage, runWithLoading, sleep }), // secondo me sleep va solo nelle deps, non nei value, concettualmente, poi magari comodo averlo li . io l ho sempre importato da utils
+  const actions = useMemo(   //male trigger in actions.. sono di fretta
+    () => ({ show, hide, setMessage, runWithLoading, sleep, trigger, setTrigger }), // secondo me sleep va solo nelle deps, non nei value, concettualmente, poi magari comodo averlo li . io l ho sempre importato da utils
     [show, hide, setMessage, runWithLoading, sleep]
   );
 

@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { LoadingStateContext, LoadingActionsContext } from "./contexts";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ export function useLoadingState() {
   return ctx;
 }
 
+
 //NON USATA
 export function useHideRotellaVECCHIO() {
   const { hide } = useLoading();
@@ -26,7 +27,7 @@ export function useHideRotellaVECCHIO() {
 
 // piu carino
 export function useHideRotella(triggers: ReadonlyArray<unknown> = []) {
-  const { hide } = useLoading();
+  const { hide, trigger } = useLoading();
 
   useEffect(() => {
     //timeout e clear da togliere ma avevo paura fosse troppo velcoe
@@ -37,7 +38,7 @@ export function useHideRotella(triggers: ReadonlyArray<unknown> = []) {
       cancelAnimationFrame(idRaf);
       clearTimeout(idT);
     };
-  }, [hide, ...triggers]); //così gli passiamoa nche le mode in classrom etc
+  }, [hide, trigger, ...triggers]); //così gli passiamoa nche le mode in classrom etc
 }
 
 //🤔⚠️❓❔ PERCHE' NON VA BENE❓❔
@@ -62,16 +63,21 @@ export type NavigateWithRotellaOptions = {
   state?: any;
 };
 
+
+
 export function useNavigateWithRotella() {
   const navigate = useNavigate();
   const { show, setMessage } = useLoading();
+  const {setTrigger} = useLoading();
 
   // così useNavigate non ce ne da una nuova ogni volta e visto che la usano tutti causerebbe rerender a tutti
   return useCallback(
     (path: string, opts?: NavigateWithRotellaOptions) => {
       const message = opts?.message ?? "Caricamento...";
       setMessage(message);
+     setTrigger();
       show();
+
 
       navigate(path, {
         replace: opts?.replace,
@@ -81,6 +87,6 @@ export function useNavigateWithRotella() {
         },
       });
     },
-    [navigate, show, setMessage]
+    [navigate, show, setMessage, setTrigger] 
   );
 }

@@ -14,7 +14,11 @@ export type LoadingActions = {
     ms?: number,
     wait?: boolean
   ) => Promise<T>;
+  //hideRotella: ()=>void;
+  trigger: boolean;
+  setTrigger: (nuovo?: boolean)=>void;
 };
+
 
 export const LoadingStateContext = createContext<LoadingState | null>(null);
 export const LoadingActionsContext = createContext<LoadingActions | null>(null);
