@@ -7,7 +7,7 @@ import { orderBy } from "lodash";
 import { Alert, Box, Container } from "@mui/material";
 
 import TableRegister from "./../TableRegister";
-import type { ClassRegisterMode } from "../../../models/ClassRegisterMode";
+import type { PageMode } from "../../../models/PageMode";
 import type { Lezione } from "../../../models/Lezione";
 import type { Studente } from "../../../models/Studente";
 import { navigateLandingPageIfNotAuth } from "../../../shared/utils";
@@ -40,7 +40,7 @@ export default function ClassRegister() {
   const [reloadTag, setReloadTag] = useState<boolean>(false); //ogni volta che lo cambiamo riparte lo useEffect che fa la get degli studenti e delle lezioni.
 
   // in new una sola riga, collassata, compilabile; se siamo in edit tutte le righe, e quella in edit on focus, cvollassata e interagibile; se siamo in view tutte le righe non interagibili, se si viene da una new o da una edit, quella aperta e on focus
-  const [mode, setMode] = useState<ClassRegisterMode>("view");
+  const [mode, setMode] = useState<PageMode>("view");
 
   // Se siamo in edit, quale lezione? (serve per passare mode giusto, aprire e mettere on focus)
   const [editingLessonId, setEditingLessonId] = useState<number | undefined>(

@@ -20,8 +20,6 @@ type DashboardTableProps = {
   onDelete: (studene: Studente) => void;
 };
 
-
-
 export default function DashboardTable({
   studenti,
   onModify,
@@ -53,7 +51,7 @@ export default function DashboardTable({
             </TableHead>
             <TableBody>
               {[...(studenti ?? [])]
-                .sort((a, b) => a.cognome.localeCompare(b.cognome))
+                .sort((a, b) => a.cognome.localeCompare(b.cognome)) //🔴 qui da errore quando provi ad aggiungere studente
                 .map((studente) => (
                   <TableRow key={studente.cf}>
                     <TableCell />
@@ -84,6 +82,4 @@ export default function DashboardTable({
       </Box>
     </>
   );
-
-  
 }

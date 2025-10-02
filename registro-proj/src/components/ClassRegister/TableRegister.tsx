@@ -14,10 +14,10 @@ import { useEffect, useRef } from "react";
 
 import LessonRow from "./LessonRow";
 import type { Lezione } from "../../models/Lezione";
-import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
+import type { PageMode } from "../../models/PageMode";
 
 type TableRegisterProps = {
-  mode: ClassRegisterMode;
+  mode: PageMode;
   allStudentByCfSorted: Record<string, { nome?: string; cognome?: string }>;
   // dati
   lezioni: Lezione[];

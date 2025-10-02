@@ -5,12 +5,16 @@ import { orderBy } from "lodash";
 import { Alert, Box, Container } from "@mui/material";
 
 import TableRegister from "./TableRegister";
-import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
+import type { PageMode } from "../../models/PageMode";
 import type { Lezione } from "../../models/Lezione";
 import type { Studente } from "../../models/Studente";
-import { navigateLandingPageIfNotAuth } from "../../shared/utils";
+import { navigateLandingPageIfNotAuth, sleep } from "../../shared/utils";
 
-import { useLoading } from "../../shared/loading/hooks";
+import {
+  useLoading,
+  useNavigateWithRotella,
+  useHideRotella,
+} from "../../shared/loading/hooks";
 
 // mappa status code con messaggio (verificare che questo mapping abbia senso e sia usato bene, e che sia completo)
 function mapErrorMessage(err: unknown): string {
@@ -29,15 +33,16 @@ function mapErrorMessage(err: unknown): string {
 
 export default function ClassRegister() {
   const navigate = useNavigate();
+  const navigateRotella = useNavigateWithRotella();
   const location = useLocation();
-  const { runWithLoading } = useLoading(); // disponibili per destruttur anche prop in value del context foornite da useLoading : , show, hide, setMessage; per fare cosette proprio manualmente
+  const { runWithLoading, setMessage } = useLoading(); // disponibili per destruttur anche prop in value del context foornite da useLoading : , show, hide, setMessage; per fare cosette proprio manualmente
 
   const [lezioni, setLezioni] = useState<Lezione[]>([]);
   const [studenti, setStudenti] = useState<Studente[]>([]);
   const [reloadTag, setReloadTag] = useState<boolean>(false); //ogni volta che lo cambiamo riparte lo useEffect che fa la get degli studenti e delle lezioni.
 
   // in new una sola riga, collassata, compilabile; se siamo in edit tutte le righe, e quella in edit on focus, cvollassata e interagibile; se siamo in view tutte le righe non interagibili, se si viene da una new o da una edit, quella aperta e on focus
-  const [mode, setMode] = useState<ClassRegisterMode>("view");
+  const [mode, setMode] = useState<PageMode>("view");
 
   // Se siamo in edit, quale lezione? (serve per passare mode giusto, aprire e mettere on focus)
   const [editingLessonId, setEditingLessonId] = useState<number | undefined>(
@@ -51,37 +56,64 @@ export default function ClassRegister() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  useHideRotella([mode]);
+
   // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
   useEffect(() => {
     let cancelled = false;
 
-    void runWithLoading(async () => {
-      setErrorMessage(null);
+    void runWithLoading(
+      async () => {
+        setErrorMessage(null);
 
-      try {
-        const [lezRes, studRes] = await Promise.all([
-          // le due promise diventano un oggetto promise che restituirà gli oggetti di entrambe
-          axios.get<Lezione[]>("/api/lezioni"),
-          axios
-            .get<Studente[]>("/api/studenti")
-            .catch(() => ({ data: [] as Studente[] })),
-        ]);
+        try {
+          const [lezRes, studRes] = await Promise.all([
+            axios.get<Lezione[]>("/api/lezioni"),
+            axios.get<Studente[]>("/api/studenti"),
+          ]);
 
-        if (cancelled) return;
-        setLezioni(lezRes.data ?? []);
-        setStudenti(studRes.data ?? []);
-      } catch (err) {
-        if (cancelled) return;
-        setErrorMessage(mapErrorMessage(err));
-        navigateLandingPageIfNotAuth(err, navigate);
-      }
-    }, "Carico registro…");
+          if (cancelled) return;
+          setLezioni(lezRes.data ?? []);
+          setStudenti(studRes.data ?? []);
+        } catch (error: any) {
+          if (cancelled) return;
 
+          console.error(error);
+
+          if (axios.isAxiosError(error)) {
+            if (error.response) {
+              setErrorMessage(
+                typeof error.response.data === "string"
+                  ? error.response.data
+                  : "Errore applicativo imprevisto."
+              );
+            } else if (error.request) {
+              setErrorMessage("Timeout. Nessuna risposta dal server.");
+            } else {
+              setErrorMessage(
+                error.message ?? "Errore applicativo imprevisto."
+              );
+            }
+          } else {
+            setErrorMessage("Errore applicativo imprevisto.");
+          }
+          if (navigateLandingPageIfNotAuth(error, navigate)) {
+            setMessage("Non Autorizzato");
+            await sleep(700);
+          }
+        }
+      },
+      "Carico registro…",
+      700
+    );
     return () => {
       cancelled = true;
     };
-  }, [reloadTag, runWithLoading, navigate]); // runWithLoad in System (context doppio) è useCallBack solo su hide e show quindi in ppratica useCallBack non cambia mai (ref di dunz show e hide usecallback []), però se mai cmabiassimo .. eslint felice perchè "usi runWithLoading => la metti in deps.. ma non serve"
+  }, [reloadTag, runWithLoading, navigate]);
+  // runWithLoad in System (context doppio) è useCallBack solo su hide e show quindi in ppratica useCallBack non cambia mai (ref di dunz show e hide usecallback []), però se mai cmabiassimo .. eslint felice perchè "usi runWithLoading => la metti in deps.. ma non serve"
   // idem per navigate. ref non cambia ai render (useNavigate e suo provider ci fornisocno stabile), ma visto che la usiamo la mettiamo. come se non ci fosse.
+
+  // GET iniziale e al reload (lezioni + studenti) (studenti veri servono per ordinare e visualizz<re cognome nome)
 
   // parsa il path quando cambia e imposta mode e se siamo in edit l id che ricava dal path
   useEffect(() => {
@@ -125,9 +157,14 @@ export default function ClassRegister() {
     if (maybeFocus) setFocusLessonId(maybeFocus); // sennò non cancella quelloche c eravamo comunque passati.. se ce l eravamo passati .. perchè o tutte e due o niente penso
     // cancello state del focus così ad ogni mount per qualsiasi motivo non mi ricollassa e focussa l originalmente aperto e focussato
     if (maybeFocus) {
-      navigate("/class-register", { replace: true, state: null }); // non capisco perchè dovrebbe non focussare piuu che tanto passiamo focusLessonId che sopravvive ai render ed è lui a fare la cond ( da capire perchè funziona o no), a meno che non ci sia un trucco su NUmber, null e undefined, e che quindi cambio perchè non sono cosiì pro da apprezzarne la non chiarezza
+      navigateRotella("/class-register", {
+        message: "apertura registro",
+        replace: true,
+        state: null,
+      });
+      // non capisco perchè dovrebbe non focussare piuu che tanto passiamo focusLessonId che sopravvive ai render ed è lui a fare la cond ( da capire perchè funziona o no), a meno che non ci sia un trucco su NUmber, null e undefined, e che quindi cambio perchè non sono cosiì pro da apprezzarne la non chiarezza
     }
-  }, [location.pathname, location.state, navigate]);
+  }, [location.pathname, location.state, navigateRotella]);
 
   // Mappa studenti by CF ordinati (cognome>nome>cf)
   // 1) mappa ordinata string (cf) {nome, cognome} , in realtà record, che è solo un tipo non "struttura" come Map con sui metodi etc. Se chiave è string e non cambia tutto spessissimo va benissimo record
@@ -152,17 +189,20 @@ export default function ClassRegister() {
 
   // gli HANDLER per figlio per cambiare mode
   const onCreate = () => {
-    navigate("/class-register/new");
+    navigateRotella("/class-register/new", { message: "verso appello" });
   };
 
   const onEdit = (lezione: Lezione) => {
     // portiamo i dati con navigate(state) per UI reattiva; fallback già gestito dal parsing del path
-    navigate(`/class-register/${lezione.id}/edit`, { state: { lezione } });
+    navigateRotella(`/class-register/${lezione.id}/edit`, {
+      message: `verso edit di lezione del ${lezione.dataLezione}`,
+      state: { lezione },
+    });
   };
 
   const onCancelEdit = () => {
     // torni alla lista senza cambiare cache
-    navigate("/class-register");
+    navigateRotella("/class-register");
   };
 
   // l HANDLER del figlio per SALVARE una NEW  o una EDIT
@@ -197,7 +237,9 @@ export default function ClassRegister() {
             });
 
             setFocusLessonId(payload.id);
-            navigate("/class-register", { state: { focusId: payload.id } });
+            navigateRotella("/class-register", {
+              state: { focusId: payload.id },
+            });
           } else {
             // NEW
             const res = await axios.put<Lezione | undefined>(
@@ -212,19 +254,22 @@ export default function ClassRegister() {
               const created = res.data;
               setLezioni((prev) => [...prev, created]);
               setFocusLessonId(created.id);
-              navigate("/class-register", { state: { focusId: created.id } });
+              navigateRotella("/class-register", {
+                state: { focusId: created.id },
+              });
             } else {
               // fallback: refetch elenco
               const lezRes = await axios.get<Lezione[]>("/api/lezioni");
               setLezioni(lezRes.data ?? []);
-              navigate("/class-register");
+              navigateRotella("/class-register");
             }
           }
         },
-        payload.id != null ? "Aggiorno lezione…" : "Creo lezione…"
+        payload.id != null ? "Aggiorno lezione…" : "Creo lezione…",
+        700
       );
     } catch (err) {
-      setErrorMessage(mapErrorMessage(err));
+      setErrorMessage(mapErrorMessage(err)); //prof ci manda error message nella res personalizzato su endpoint, basterebbe usare error.response.data . il body . è plaintext. è la stringa dell errore.
       navigateLandingPageIfNotAuth(err, navigate);
     }
   };
@@ -238,11 +283,28 @@ export default function ClassRegister() {
 
       // se eri in view, ci rimani e fine; se eri in edit, torni a classregister senza focusid ovviamente ( non c'è piu la lez)
       if (mode === "edit" && editingLessonId === id) {
-        navigate("/class-register");
+        navigateRotella("/class-register");
       }
-    } catch (err) {
-      setErrorMessage(mapErrorMessage(err));
-      navigateLandingPageIfNotAuth(err, navigate);
+    } catch (error) {
+      console.error(error);
+      if (axios.isAxiosError(error)) {
+        // se err è AxiosError => true
+        if (error.response) {
+          // const s = err.response.status; // volendo comportamenti per stato ma non ci serve cuz be ci da stringa errore come corpo del body e noi la usiamo.
+          setErrorMessage(
+            error.response.data ?? "Errore applicativo imprevisto."
+          ); //.data per il body della response , quello che in postman si chiama body
+        } else if (error.request) {
+          setErrorMessage("Timeout. Nessuna risposta dal server.");
+        }
+      } else {
+        setErrorMessage("Errore applicativo imprevisto.");
+      }
+
+      if (navigateLandingPageIfNotAuth(error, navigate)) {
+        setMessage("Non Autorizzato");
+        await sleep(700);
+      }
     }
   };
 

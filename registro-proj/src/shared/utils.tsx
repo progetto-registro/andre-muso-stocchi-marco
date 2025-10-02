@@ -30,15 +30,19 @@ export const navItems: NavItem[] = [
 export const navigateLandingPageIfNotAuth = (
   err: unknown,
   navigate: NavigateFunction
-): void => {
+): boolean => {
   const errAx = err as AxiosError<any>;
   if (errAx.response?.status === 401) {
     //mettere messaggio in rotellina in questo caso
     navigate("/");
+    return true;
   }
+  return false;
 };
 
 export function popupAlert(message: string, colore: string) {
+  if (!message) return; //scusa stoch l ho aggiunto per paura di toast vuoti ai reset ma se va bene inutile
+
   if (colore == "rosso") {
     toast.error(message, {
       position: "top-right",

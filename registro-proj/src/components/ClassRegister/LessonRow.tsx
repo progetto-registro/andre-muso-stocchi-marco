@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, forwardRef } from "react";
 import type { PresenzaStudente } from "../../models/Studente";
 import type { LezioneCreate } from "../../models/Lezione";
 import type { Lezione } from "../../models/Lezione";
-import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
+import type { PageMode } from "../../models/PageMode";
 import {
   Box,
   Checkbox,
@@ -25,7 +25,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 
 type LessonRowProps = {
-  mode: ClassRegisterMode;
+  mode: PageMode;
 
   // per dire se già collapsato o no inizialmente
   initialOpen?: boolean;

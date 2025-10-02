@@ -3,13 +3,22 @@ import type { Studente } from "../../models/Studente";
 import { useEffect, useState } from "react";
 import { useLoading } from "../../shared/loading/hooks";
 import axios, { AxiosError } from "axios";
-import type { ClassRegisterMode } from "../../models/ClassRegisterMode";
+import type { PageMode } from "../../models/PageMode";
 import EditStudent from "./EditStudent";
 
-import { navigateLandingPageIfNotAuth, popupAlert } from "../../shared/utils";
+import {
+  navigateLandingPageIfNotAuth,
+  popupAlert,
+  sleep,
+} from "../../shared/utils";
 
 import { useNavigate } from "react-router-dom";
 import DashboardTable from "./DashboardTable";
+
+import {
+  useNavigateWithRotella,
+  useHideRotella,
+} from "../../shared/loading/hooks";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -23,8 +32,10 @@ export default function Dashboard() {
   >();
 
   //La classe ClassRegisterMode in realtà va bene anche qui visto che ha gli stessi stati
-  const [mode, setMode] = useState<ClassRegisterMode>("view");
+  const [mode, setMode] = useState<PageMode>("view");
   // "/api/studenti"
+
+  useHideRotella([mode]);
   useEffect(() => {
     let cancelled = false; // se cancelled è true vuol dire che questo era il secondo useEffect di una raffica di click su refetch. quando ha iniziato ha messo a false il cancelled, che a riposo sta a true, ma se lo ritrova a true dopo un await (=> un altro useeffect l ha messo a true perchè nel frattempo ha finito)
 
@@ -41,6 +52,7 @@ export default function Dashboard() {
           setRefetch(false);
           setErrorMessage("");
           if (error.response) {
+            // qua lasciamo errori in altro modo per ricordarci come si fa anche così
             const s = error.response.status;
             if (s === 401) {
               setErrorMessage("Non autorizzato.");
@@ -57,11 +69,16 @@ export default function Dashboard() {
           } else {
             setErrorMessage("Errore applicativo imprevisto.");
           }
+
+          if (navigateLandingPageIfNotAuth(error, navigate)) {
+            setErrorMessage("Non Autorizzato");
+            await sleep(700);
+          }
         }
       },
       "Carico studenti…",
-      700,
-      true
+      700
+      //true //cmapo ompt non metterlo, usare il default così se poi cambi il default cambia ovunque
     );
 
     return () => {
@@ -90,16 +107,37 @@ export default function Dashboard() {
   const onDelete = async (studente: Studente) => {
     setErrorMessage("");
     try {
-      await runWithLoading(async () => {
-        await axios.delete("/api/studenti/elimina", {
-          data: { cf: studente.cf },
-        });
-        setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
-        setMode("view");
-      }, "Elimino studente…");
+      await runWithLoading(
+        async () => {
+          await axios.delete("/api/studenti/elimina", {
+            data: { cf: studente.cf },
+          });
+          setStudenti((prev) => prev.filter((s) => s.cf !== studente.cf));
+          setMode("view");
+        },
+        "Elimino studente…",
+        700
+      );
     } catch (error) {
       console.error(error);
-      setErrorMessage("Impossibile eliminare lo studente.");
+      if (axios.isAxiosError(error)) {
+        // se err è AxiosError => true
+        if (error.response) {
+          // const s = err.response.status; // volendo comportamenti per stato ma non ci serve cuz be ci da stringa errore come corpo del body e noi la usiamo.
+          setErrorMessage(
+            error.response.data ?? "Errore applicativo imprevisto."
+          ); //.data per il body della response , quello che in postman si chiama body
+        } else if (error.request) {
+          setErrorMessage("Timeout. Nessuna risposta dal server.");
+        }
+      } else {
+        setErrorMessage("Errore applicativo imprevisto.");
+      }
+
+      if (navigateLandingPageIfNotAuth(error, navigate)) {
+        setErrorMessage("Non Autorizzato");
+        await sleep(700);
+      }
     }
   };
 
@@ -121,7 +159,6 @@ export default function Dashboard() {
           if (studenteInModifica) {
             await axios.post("/api/studenti/modifica", nuovoStudente); // volendo prendi la res e fai (res.data as any ).unCampoDelPayloadCheUsiTipoSuccess===false .. e poi in altri campi di res.data magari c'è info. e puoi fare throw new error e passar emessaggio contenuto dalla res o personalizzato, e poi error catchato dal catch esterno e setta errormessage => toast. ma noi non usiamo il 200 per gestire errori
 
-            setRefetch(true); //🔴🟠inutile refetchare studenti tanto li aggiorni in locale con il nuovo/modificato, e BE già modificato con axios. rerender gratuito
             setStudenti((prev) =>
               prev.map((s) =>
                 s.cf.toUpperCase() === nuovoStudente.cf ? nuovoStudente : s
@@ -133,13 +170,13 @@ export default function Dashboard() {
               nuovoStudente
             );
 
-            setRefetch(true); //🔴🟠 idem
             setStudenti((prev) => [...prev, res.data ?? nuovoStudente]);
           }
 
           setMode("view");
         },
-        studenteInModifica ? "Aggiorno studente…" : "Creo studente…" // secondo param di runWithLoading , per messaggio rotella
+        studenteInModifica ? "Aggiorno studente…" : "Creo studente…",
+        700
       );
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -155,6 +192,11 @@ export default function Dashboard() {
         }
       } else {
         setErrorMessage("Errore applicativo imprevisto.");
+      }
+
+      if (navigateLandingPageIfNotAuth(err, navigate)) {
+        setErrorMessage("Non Autorizzato");
+        await sleep(700);
       }
     }
   };

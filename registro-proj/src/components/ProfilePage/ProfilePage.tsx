@@ -8,8 +8,14 @@ import {
   modificaProfiloFormSettings,
   visualizzaProfiloFormSettings,
 } from "../../models/FormSettings";
-import { navigateLandingPageIfNotAuth } from "../../shared/utils";
+import { navigateLandingPageIfNotAuth, sleep } from "../../shared/utils";
 import { useLoading } from "../../shared/loading/hooks";
+import type { PageMode } from "../../models/PageMode";
+
+import {
+  useNavigateWithRotella,
+  useHideRotella,
+} from "../../shared/loading/hooks";
 
 type ProfilePageProps = {
   loggedUser: User | undefined;
@@ -20,49 +26,54 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
   //l oggetto Partial<User> che se validato diventa User e che viene inviato
   const [formMessage, setFormMessage] = useState<string>(""); // Con validazione nativa con Box type form sicuramente c erano modi migliori.. messaggio generico in basso potremmo differenziare a seconda del campo però ci sarebbe da pensarci perchè isFormComplete al momento non penso possa returnare stringa
   const [submitting, setSubmitting] = useState<boolean>(false); //così  uno non può spammare summing durante controllo fecth perchè si disabilita bottone
-  const [view, setView] = useState<boolean>(true);
+  const [mode, setMode] = useState<PageMode>("view");
   const navigate = useNavigate();
 
-  const { runWithLoading } = useLoading();
+  const { runWithLoading, setMessage } = useLoading();
+
+  useHideRotella();
+  const navigateRotella = useNavigateWithRotella();
 
   const handleSubmit = async (formData: User) => {
-    if (view) {
-      setView(false);
+    if (mode === "view") {
+      setMode("edit");
       return;
     } else {
-      axios
-        .post("/api/auth/modifica", formData)
-        .then(function (response) {
-          console.log(response);
-          onLogin(formData);
-          setSubmitting(false);
-          setView(view);
-        })
-        .catch((error: AxiosError<any>) => {
-          setSubmitting(false);
-          console.error(error);
-          if (error.response) {
-            const s = error.response.status;
-            if (s === 400 || s === 409) {
-              setFormMessage(
-                "Utente già esistente (CF duplicato) o dati non validi."
-              );
-            } else if (s === 401) {
-              setFormMessage("Non autorizzato.");
-              navigateLandingPageIfNotAuth(error, navigate);
-            } else if (s === 404) {
-              setFormMessage("API non trovata.");
-            } else {
-              setFormMessage("Errore del server. Riprova più tardi.");
-            }
-          } else if (error.request) {
-            setFormMessage(
-              "Nessuna risposta dal server. Controlla la connessione."
-            );
-          } else {
-            setFormMessage("Errore applicativo imprevisto.");
-          }
-        });
+      await runWithLoading(
+        () =>
+          axios // senza .then/.catch si fa runWithLoading(async ()=>{le cose con await anche entro a try/catch. usi async perchè vuoi usare await o throw, non perchè ritorna una Promise}), message, ms) .le graffe perchè axiox.get.then..catch è una fluent .. è progr funz.. è come un unica istruzione quindi non necessarie {return axios.get. .. .catch()}, ma puoi metterlo.  async serve 1 per forzare il tipo di ritorno a Promise<T> , 2 perche ti sblocca uso di await e throw assieme a await e throw compone syntax sugar per assemblare piu promise aspettandone varie con await che può sia portare ad un resolve che a un reject, o lanciando dei reject con throw direttamente. MA SE COME CON CATCH/THEN non ci sono await o throw, non serve async. Se lo metti è inutile ma non te lo mette in rosso.  NB gli await returnano delle promise al chiamante coordinandosi con async
+            .post("/api/auth/modifica", formData)
+            .then(function (response) {
+              console.log(response);
+              onLogin(formData);
+              setSubmitting(false);
+              setMode("view"); //niente sleep qua, se torna in view sotto la rotella ok
+            })
+            .catch((error) => {
+              setSubmitting(false);
+              console.error(error);
+              if (axios.isAxiosError(error)) {
+                // se err è AxiosError => true
+                if (error.response) {
+                  // const s = err.response.status; // volendo comportamenti per stato ma non ci serve cuz be ci da stringa errore come corpo del body e noi la usiamo.
+                  setFormMessage(
+                    error.response.data ?? "Errore applicativo imprevisto."
+                  ); //.data per il body della response , quello che in postman si chiama body
+                } else if (error.request) {
+                  setFormMessage("Timeout. Nessuna risposta dal server.");
+                }
+              } else {
+                setFormMessage("Errore applicativo imprevisto.");
+              }
+
+              if (navigateLandingPageIfNotAuth(error, navigate)) {
+                setMessage("Non Autorizzato");
+              }
+              // accompagnamento a landingpage con rotella (anche se doppio sleep 1.4s brutto)
+            }),
+        "carincamento modifiche",
+        700
+      );
     }
   };
 
@@ -89,7 +100,9 @@ export default function ProfilePage({ loggedUser, onLogin }: ProfilePageProps) {
       >
         <SignupForm
           formSettings={
-            view ? visualizzaProfiloFormSettings : modificaProfiloFormSettings
+            mode === "view"
+              ? visualizzaProfiloFormSettings
+              : modificaProfiloFormSettings
           }
           formMessage={formMessage}
           submitting={submitting}

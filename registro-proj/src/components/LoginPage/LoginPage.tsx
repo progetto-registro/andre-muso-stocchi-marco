@@ -7,6 +7,11 @@ import SignupForm from "../../shared/SignupForm";
 import { loginFormSettings } from "../../models/FormSettings";
 import { useLoading } from "../../shared/loading/hooks";
 import type { User } from "../../models/User";
+import { navigateLandingPageIfNotAuth, sleep } from "../../shared/utils";
+import {
+  useNavigateWithRotella,
+  useHideRotella,
+} from "../../shared/loading/hooks";
 
 type LoginPageProps = {
   onLogin: (user: User) => void;
@@ -19,8 +24,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   //serve a gestire facilmente la navigazione tra le pagine
-  const navigate = useNavigate();
-  const { runWithLoading } = useLoading();
+  const { runWithLoading, setMessage } = useLoading();
+
+  useHideRotella();
+  const navigateRotella = useNavigateWithRotella();
 
   const handleSubmit = async (formData: LoginUser) => {
     setFormMessage("");
@@ -37,7 +44,12 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             //molto prob non serve perche se !res.data => eccezione
 
             onLogin(res.data);
-            navigate("/home", { replace: true }); //🔴 rotella deve cambiare scritta mentre è on , sennò diamo direttamente login
+            navigateRotella("/home", {
+              message: "accedendo ...",
+              replace: true,
+            });
+            setMessage("Logged"); //cambia scrittA A ROTELLA  se logged
+            await sleep(700); // sennò sto comp muore subito con anche rotella chiamata qua muoree(qui chiami runWithLoading, è lui a tenere lo sleep)
           }
         } catch (err) {
           setSubmitting(false);
@@ -54,12 +66,14 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           } else {
             setFormMessage("Errore applicativo imprevisto.");
           }
+
+          // navigateLandingPageIfNotAuth(err, navigate); //ci stava metterlo dentro if response che tanto cade li ma così mi sento piu safe ( qui non serve, sei in login)
         }
       },
       "Loggin in..",
-      750,
-      true
-    ); //true non serve, è default
+      700
+      //true //campo opt, non metterlo, usare il default così se poi cambi il default cambia ovunque
+    );
   };
 
   return (

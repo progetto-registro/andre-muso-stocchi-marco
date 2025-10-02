@@ -1,6 +1,7 @@
 # MARCO
 
-- [ ] 🔴
+- [ ] 🔴 DashboardTable , **riga 56** da errore quando provi ad aggiungere studente nuovo. (cannot read property undefined) (però se
+      ricarichi lo ha aggiunto... ... )
 - [x] fare **login** usare API (prof ci ha detto che endpoit ci darà da sfruttare. ). usare libreria **axios** per usare API.
 - [x] finire dashboard
 
@@ -19,26 +20,29 @@
 
 # ANDRE
 
-- [ ] 📚📚📚🔎🔎🔎 capire meglio await async (void se non ti serve await anche se async ? perch?) .. e anche in relazione a runWithLoading.. e a then , setTimeout, etc
-- [ ] 🔴 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti (gestire data anche in dashboard)
+- [ ] 🔴 mettere rotella in navbar, home e landing
+- [ ] 🔴 controllare home e landing
+- [ ] 🟠🟠🟠 nuova lezione => le ore !! 1<->5 . l handler forza l 1 . deve farlo sul sul focus-loss
+- [x] capire meglio await async (void se non ti serve await anche se async ? perch?) .. e anche in relazione a runWithLoading.. e a then , setTimeout, etc
+- [ ] 🟠 gestire dayjs in classregister con filtri no date foture e no date già usate lezioni già presenti (gestire data anche in dashboard)
 - [ ] 🔴 sotto signup navigate login e sotto login navigate sign up
-- [ ] 🔴 📒📒📒mui per la rotellina (MANCA PROFILE E LE NAVIGATE. GIà CHE CI SEI FAI I REDIRECT NON AUTH PER 401)
-- [ ] 🔴 tutte le volte che ricevi un 401 non auth devi andare su pagina login
-- [ ] 🟠 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
-- [ ] 🟠 trasform per vedere tutto form ? brutto . solo su signuppage ? no
+- [x] mui per la rotellina (MANCA PROFILE E LE NAVIGATE. GIà CHE CI SEI FAI I REDIRECT NON AUTH PER 401)
+- [x] tutte le volte che ricevi un 401 non auth devi andare su pagina login
+- [ ] 🟡 in class-register pagina va sotto navbar a volte , male. 🔴 inoltre non posta new lesson (putta in be prof).. guiardare se costruisco male oggetto o altro
+- [ ] 🟡 trasform per vedere tutto form ? brutto . solo su signuppage ? no
 - [ ] 🟡 definire type Props di tutti comp (parti da singup page)
-- [ ] 🟡 provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
-- [ ] (non lo faremo) ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
+- [ ] provare a gestire meglio il tipo di return nel submit di signupform senza dover fare as any di sopra
+- [x] (non lo faremo) ordinare cartelle type e se avrai tempo anche giochi con index per importare da same posto
 - [x] fare **routing** , tutti i comp principali (**pagine**) vuoti
 - [x] fare **NavBar**
 - [x] settare **API**
 - [x] fare **modifica utente == profilo** riutilizzando SignupForm , leggi sotto
 - [x] adattare **class-register** anche per edit e new
 - [x] valutare l utilizzo di **Context** => usato per rotellina
-- [ ] (non avremo tempo) approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
-- [ ] 🟠 controllare endpoint e funziona,mento con be
+- [x] (non avremo tempo) approfondire **temi mui**: anche effetti come over o focus su campi o bottoni
+- [x] controllare endpoint e funziona,mento con be
 - [x] 🟢 GESTIRE USERLOGGED (fare un provider magari era meglio ma amen: unico " problema" in modifica profilo che rerendera tutto ; le altre volte no prob)
-- [ ] 🔴 togliere callback di userlogged 🟢o mantenerlo, fare un context per lui .. e usarlo magari per ricordarsi login per volta dopo non so. se proprio troppo tempo
+- [x] (gestito) togliere callback di userlogged 🟢o mantenerlo, fare un context per lui .. e usarlo magari per ricordarsi login per volta dopo non so. se proprio troppo tempo
 - [x] La data non fuzniona, fare context (User, isLogged, etc)
 
 # PER TUTTI
