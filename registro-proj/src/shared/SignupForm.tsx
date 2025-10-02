@@ -206,8 +206,9 @@ export default function SignupForm({
       <Typography
         variant="h5"
         sx={{ mb: { xs: 2, sm: 3 }, fontWeight: 600, textAlign: "center" }}
+        color="#191970"
       >
-        {formSettings.formTitle}
+        {formSettings.formTitle.toUpperCase()}
       </Typography>
 
       {/* FORM */}
@@ -464,8 +465,8 @@ export default function SignupForm({
               alignSelf: "center",
               mt: 1,
               px: { xs: 4, sm: 6 },
-              bgcolor: "gray",
-              color: "magenta",
+              bgcolor: "#191970",
+              color: "#87CEFA",
               fontSize: "1.5rem",
               borderRadius: "6px",
             }}
